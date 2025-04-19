@@ -11,8 +11,13 @@ from helper import (
 )
 
 app = Dash(title="IPL Rasiya 2025", external_stylesheets=dmc.styles.ALL)
+server = app.server
 
-data_df = load_data(file_path="./data/IPLRasiyaData2025.csv")
+try:
+    data_df = load_data(file_path="./data/IPLRasiyaData2025.csv")
+except FileNotFoundError:
+    print("Data file not found. Please ensure the file path is correct.")
+    data_df = None
 print(data_df)
 
 app.layout = dmc.MantineProvider(
