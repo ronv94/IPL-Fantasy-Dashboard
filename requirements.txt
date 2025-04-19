@@ -10,6 +10,7 @@ dash-html-components==2.0.0
 dash_ag_grid==31.3.1
 dash_mantine_components==1.1.1
 Flask==3.0.3
+gunicorn==23.0.0
 idna==3.10
 importlib_metadata==8.6.1
 itsdangerous==2.2.0
