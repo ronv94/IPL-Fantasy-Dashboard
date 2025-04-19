@@ -14,13 +14,6 @@ from helper import (
 app = Dash(title="IPL Rasiya 2025", external_stylesheets=dmc.styles.ALL)
 server = app.server
 
-# try:
-#     data_df = load_data(file_path="./data/IPLRasiyaData2025.csv")
-# except FileNotFoundError:
-#     print("Data file not found. Please ensure the file path is correct.")
-#     data_df = None
-# print(data_df)
-
 app.layout = dmc.MantineProvider(
     [
         dcc.Location(id="app-url", refresh=True),
@@ -119,7 +112,6 @@ def load_data_on_start(pathname):
     if pathname == "/":
         try:
             data_df = load_data(file_path="./data/IPLRasiyaData2025.csv")
-            print("DONE!")
             max = len(data_df)
             value = [1, len(data_df)]
             marks = [{"value": i for i in range(1, len(data_df) + 1)}]

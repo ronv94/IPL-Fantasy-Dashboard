@@ -22,7 +22,6 @@ def create_dag(df):
         print("DataFrame is empty or None.")
         return None
 
-    print(df.to_dict("records"))
     grid_options = {
         "columnDefs": [{"headerName": col, "field": col} for col in df.columns],
         "rowData": df.to_dict("records"),
@@ -60,6 +59,7 @@ def create_line_chart(df):
         legend=dict(
             title="", orientation="v", yanchor="top", y=1, xanchor="left", x=1.02
         ),
+        margin=dict(l=20, r=20, t=20, b=20),
     )
     return fig
 
@@ -100,10 +100,12 @@ def create_scatter_plot(df):
         height=415,
         plot_bgcolor="white",
         xaxis_title="Match",
+        xaxis_range=[df["Match"].min() - 1, df["Match"].max() + 1],
         yaxis_title="Points Earned",
         legend=dict(
             title="", orientation="v", yanchor="top", y=1, xanchor="left", x=1.02
         ),
+        margin=dict(l=20, r=20, t=20, b=20),
     )
     return fig
 
@@ -117,8 +119,6 @@ def create_leaderboard_table(df):
     )
 
     team_points = team_points.sort_values("Rank")
-
-    print(team_points)
 
     table = dag.AgGrid(
         id="rank-table",
