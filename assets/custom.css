@@ -1,0 +1,17 @@
+.layout-styles {
+  margin: 2%;
+  font-family: Arial, sans-serif;
+}
+
+.label-styles {
+  font-size: 1.2em;
+}
+
+.chart-styles {
+  padding: 1%;
+  padding-top: 0;
+  padding-bottom: 0;
+  border: 2px solid rgb(73, 147, 250);
+  box-shadow: 5px 5px 5px rgb(73, 147, 250);
+  border-radius: 15px;
+}
