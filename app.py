@@ -23,8 +23,9 @@ app.layout = dmc.MantineProvider(
                 dmc.Grid(
                     [
                         dmc.GridCol(
-                            dmc.Title(
-                                "IPL Rasiya 2025", order=1, className="title-styles"
+                            dmc.Image(
+                                src="/assets/ipl_rasiya_logo.png",
+                                # style={"height": "80%", "width": "100%"},
                             ),
                             span=3,
                         ),
@@ -57,8 +58,9 @@ app.layout = dmc.MantineProvider(
                             span=3,
                         ),
                     ],
+                    align="center",
                 ),
-                html.Br(),
+                # html.Br(),
                 dmc.Grid(
                     [
                         dmc.GridCol(
