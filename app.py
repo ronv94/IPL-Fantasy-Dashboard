@@ -159,26 +159,26 @@ def load_data_on_start(pathname):
 )
 def update_graphs(drpOpen, selected_teams, match_range, data_df):
 
-    if drpOpen is True:
+    if drpOpen is True or not data_df:
         return no_update, no_update
 
-    data_df = pd.DataFrame(data_df)
-    if not selected_teams:
-        filtered_df = data_df.copy()
-    else:
-        filtered_df = data_df[["Match"] + selected_teams].copy()
+    df = pd.DataFrame(data_df)
 
-    if match_range:
-        min_match, max_match = match_range
-        filtered_df = filtered_df[
-            (filtered_df["Match"] >= min_match) & (filtered_df["Match"] <= max_match)
-        ]
+    if not selected_teams:
+        filtered_df = df.copy()
+    else:
+        filtered_df = df[["Match"] + selected_teams].copy()
 
     if filtered_df.empty:
         return no_update, no_update
 
     line_chart = create_line_chart(filtered_df)
     scatter_plot = create_scatter_plot(filtered_df)
+
+    if match_range:
+        min_match, max_match = match_range
+        line_chart.update_layout(xaxis_range=[min_match - 0.5, max_match + 0.5])
+        scatter_plot.update_layout(xaxis_range=[min_match - 0.5, max_match + 0.5])
 
     return line_chart, scatter_plot
 
