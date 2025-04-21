@@ -3,7 +3,7 @@ import dash_mantine_components as dmc
 import dash_ag_grid as dag
 import plotly.express as px
 
-from constants import TEAMS, TEAM_COLORS
+from constants import TEAMS, TEAM_COLORS, DATA_PATH, DATA_TRANSFERS_PATH
 
 
 def load_data(file_path):
@@ -65,22 +65,24 @@ def create_line_chart(df):
 
 
 def create_histogram(df):
-    df = df.melt(id_vars="Match", var_name="Team", value_name="Points")
+    df = df.melt(id_vars="Match", var_name="Team", value_name="Transfers")
     fig = px.bar(
         df,
         x="Match",
-        y="Points",
+        y="Transfers",
         color="Team",
         barmode="group",
         text_auto=".2s",
     )
     fig.update_layout(
+        height=415,
         plot_bgcolor="white",
         xaxis_title="Match",
-        yaxis_title="Points Earned",
+        yaxis_title="Transfers",
         legend=dict(
             title="", orientation="v", yanchor="top", y=1, xanchor="left", x=1.02
         ),
+        margin=dict(l=20, r=20, t=20, b=20),
     )
     return fig
 
@@ -146,6 +148,75 @@ def create_leaderboard_table(df):
             },
         ],
         rowData=team_points.to_dict("records"),
+        className="ag-theme-quartz",
+        dashGridOptions={"domLayout": "autoHeight"},
+        defaultColDef={
+            "autoWidth": True,
+            "flex": 1,
+        },
+    )
+
+    return table
+
+
+def create_transfers_table(df):
+    transfers_df = df.drop(columns=["Match"]).sum().reset_index()
+    transfers_df.columns = ["Team Name", "Transfers"]
+    transfers_df["Avg"] = (transfers_df["Transfers"] / df["Match"].nunique()).round(2)
+
+    team_points = (
+        load_data(
+            file_path=DATA_PATH,
+        )
+        .drop(columns=["Match"])
+        .sum()
+        .reset_index()
+    )
+    transfers_df = transfers_df.merge(
+        team_points, left_on="Team Name", right_on="index", how="left"
+    )
+    transfers_df = transfers_df.drop(columns=["index"]).rename(
+        columns={"index": "Team Name", 0: "Total Points"}
+    )
+    transfers_df["Eff"] = (
+        transfers_df["Total Points"] / transfers_df["Transfers"]
+    ).round(2)
+
+    transfers_df = transfers_df.sort_values("Eff", ascending=False)
+
+    table = dag.AgGrid(
+        id="transfers-table",
+        columnDefs=[
+            {
+                "headerName": "Tfrs",
+                "field": "Transfers",
+                "maxWidth": 60,
+                "minWidth": 40,
+                "sortable": True,
+            },
+            {
+                "headerName": "Team Name",
+                "field": "Team Name",
+                "maxWidth": 150,
+                "minWidth": 40,
+                "sortable": True,
+            },
+            {
+                "headerName": "Avg",
+                "field": "Avg",
+                "maxWidth": 65,
+                "minWidth": 40,
+                "sortable": True,
+            },
+            {
+                "headerName": "Eff",
+                "field": "Eff",
+                "maxWidth": 75,
+                "minWidth": 40,
+                "sortable": True,
+            },
+        ],
+        rowData=transfers_df.to_dict("records"),
         className="ag-theme-quartz",
         dashGridOptions={"domLayout": "autoHeight"},
         defaultColDef={
