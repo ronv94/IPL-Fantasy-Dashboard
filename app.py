@@ -3,11 +3,13 @@ import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 import pandas as pd
 
+from constants import DATA_PATH, DATA_TRANSFERS_PATH
 from helper import (
     load_data,
     create_line_chart,
     create_histogram,
     create_leaderboard_table,
+    create_transfers_table,
     create_scatter_plot,
 )
 
@@ -18,6 +20,7 @@ app.layout = dmc.MantineProvider(
     [
         dcc.Location(id="app-url", refresh=True),
         dcc.Store(id="store-data"),
+        dcc.Store(id="store-transfers-data"),
         html.Div(
             [
                 dmc.Grid(
@@ -25,7 +28,6 @@ app.layout = dmc.MantineProvider(
                         dmc.GridCol(
                             dmc.Image(
                                 src="/assets/ipl_rasiya_logo.png",
-                                # style={"height": "80%", "width": "100%"},
                             ),
                             span=3,
                         ),
@@ -60,7 +62,6 @@ app.layout = dmc.MantineProvider(
                     ],
                     align="center",
                 ),
-                # html.Br(),
                 dmc.Grid(
                     [
                         dmc.GridCol(
@@ -80,14 +81,38 @@ app.layout = dmc.MantineProvider(
                 dmc.Grid(
                     [
                         dmc.GridCol(
+                            id="transfers-table-div",
                             span=3,
                         ),
                         dmc.GridCol(
-                            dcc.Graph(
-                                className="chart-styles",
-                                id="graph-earned-points",
+                            dmc.Tabs(
+                                [
+                                    dmc.TabsList(
+                                        [
+                                            dmc.TabsTab(
+                                                "Points Earned", value="points-earned"
+                                            ),
+                                            dmc.TabsTab("Transfers", value="transfers"),
+                                        ]
+                                    ),
+                                    dmc.TabsPanel(
+                                        dcc.Graph(
+                                            className="chart-styles",
+                                            id="graph-earned-points",
+                                        ),
+                                        value="points-earned",
+                                    ),
+                                    dmc.TabsPanel(
+                                        dcc.Graph(
+                                            className="chart-styles",
+                                            id="graph-total-transfers",
+                                        ),
+                                        value="transfers",
+                                    ),
+                                ],
+                                variant="pills",
+                                value="points-earned",
                             ),
-                            id="graph-earned-points-div",
                             span=9,
                         ),
                     ],
@@ -102,18 +127,26 @@ app.layout = dmc.MantineProvider(
 @app.callback(
     [
         Output("store-data", "data"),
+        Output("store-transfers-data", "data"),
         Output("slider-match-range", "max"),
         Output("slider-match-range", "value"),
         Output("slider-match-range", "marks"),
         Output("drp-team-select", "data"),
         Output("leaderboard-table-div", "children"),
+        Output("transfers-table-div", "children"),
     ],
     Input("app-url", "pathname"),
 )
 def load_data_on_start(pathname):
     if pathname == "/":
         try:
-            data_df = load_data(file_path="./data/IPLRasiyaData2025.csv")
+            data_df = load_data(
+                file_path=DATA_PATH,
+            )
+            data_trasfers_df = load_data(
+                file_path=DATA_TRANSFERS_PATH,
+            )
+
             max = len(data_df)
             value = [1, len(data_df)]
             marks = [{"value": i for i in range(1, len(data_df) + 1)}]
@@ -122,15 +155,19 @@ def load_data_on_start(pathname):
             ]
             return (
                 data_df.to_dict("records"),
+                data_trasfers_df.to_dict("records"),
                 max,
                 value,
                 marks,
                 team_names,
                 create_leaderboard_table(data_df),
+                create_transfers_table(data_trasfers_df),
             )
         except FileNotFoundError:
             print("Data file not found. Please ensure the file path is correct.")
             return (
+                no_update,
+                no_update,
                 no_update,
                 no_update,
                 no_update,
@@ -145,42 +182,53 @@ def load_data_on_start(pathname):
         no_update,
         no_update,
         no_update,
+        no_update,
+        no_update,
     )
 
 
 @app.callback(
-    [Output("graph-total-points", "figure"), Output("graph-earned-points", "figure")],
+    [
+        Output("graph-total-points", "figure"),
+        Output("graph-earned-points", "figure"),
+        Output("graph-total-transfers", "figure"),
+    ],
     [
         Input("drp-team-select", "dropdownOpened"),
         Input("drp-team-select", "value"),
         Input("slider-match-range", "value"),
         Input("store-data", "data"),
+        Input("store-transfers-data", "data"),
     ],
 )
-def update_graphs(drpOpen, selected_teams, match_range, data_df):
+def update_graphs(drpOpen, selected_teams, match_range, data_df, transfers_data_df):
 
     if drpOpen is True or not data_df:
         return no_update, no_update
 
     df = pd.DataFrame(data_df)
+    transfers_df = pd.DataFrame(transfers_data_df)
 
     if not selected_teams:
         filtered_df = df.copy()
+        filtered_transfers_df = transfers_df.copy()
     else:
         filtered_df = df[["Match"] + selected_teams].copy()
-
-    if filtered_df.empty:
+        filtered_transfers_df = transfers_df[["Match"] + selected_teams].copy()
+    if filtered_df.empty or filtered_transfers_df.empty:
         return no_update, no_update
 
     line_chart = create_line_chart(filtered_df)
     scatter_plot = create_scatter_plot(filtered_df)
+    histogram = create_histogram(filtered_transfers_df)
 
     if match_range:
         min_match, max_match = match_range
         line_chart.update_layout(xaxis_range=[min_match - 0.5, max_match + 0.5])
         scatter_plot.update_layout(xaxis_range=[min_match - 0.5, max_match + 0.5])
+        histogram.update_layout(xaxis_range=[min_match - 0.5, max_match + 0.5])
 
-    return line_chart, scatter_plot
+    return line_chart, scatter_plot, histogram
 
 
 if __name__ == "__main__":
