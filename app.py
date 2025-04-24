@@ -6,11 +6,13 @@ import pandas as pd
 from constants import DATA_PATH, DATA_TRANSFERS_PATH
 from helper import (
     load_data,
-    create_line_chart,
-    create_histogram,
+    create_total_points_chart,
+    create_transfers_chart,
+    create_transfers_accumulated_chart,
+    create_transfer_efficiency_chart,
     create_leaderboard_table,
     create_transfers_table,
-    create_scatter_plot,
+    create_points_earned_chart,
 )
 
 app = Dash(title="IPL Rasiya 2025", external_stylesheets=dmc.styles.ALL)
@@ -93,6 +95,14 @@ app.layout = dmc.MantineProvider(
                                                 "Points Earned", value="points-earned"
                                             ),
                                             dmc.TabsTab("Transfers", value="transfers"),
+                                            dmc.TabsTab(
+                                                "Transfers Accumulated",
+                                                value="transfers-accumulated",
+                                            ),
+                                            dmc.TabsTab(
+                                                "Transfer Efficiency",
+                                                value="transfer-efficiency",
+                                            ),
                                         ]
                                     ),
                                     dmc.TabsPanel(
@@ -108,6 +118,20 @@ app.layout = dmc.MantineProvider(
                                             id="graph-total-transfers",
                                         ),
                                         value="transfers",
+                                    ),
+                                    dmc.TabsPanel(
+                                        dcc.Graph(
+                                            className="chart-styles",
+                                            id="graph-transfers-accumulated",
+                                        ),
+                                        value="transfers-accumulated",
+                                    ),
+                                    dmc.TabsPanel(
+                                        dcc.Graph(
+                                            className="chart-styles",
+                                            id="graph-transfer-efficiency",
+                                        ),
+                                        value="transfer-efficiency",
                                     ),
                                 ],
                                 variant="pills",
@@ -192,6 +216,8 @@ def load_data_on_start(pathname):
         Output("graph-total-points", "figure"),
         Output("graph-earned-points", "figure"),
         Output("graph-total-transfers", "figure"),
+        Output("graph-transfers-accumulated", "figure"),
+        Output("graph-transfer-efficiency", "figure"),
     ],
     [
         Input("drp-team-select", "dropdownOpened"),
@@ -218,17 +244,37 @@ def update_graphs(drpOpen, selected_teams, match_range, data_df, transfers_data_
     if filtered_df.empty or filtered_transfers_df.empty:
         return no_update, no_update
 
-    line_chart = create_line_chart(filtered_df)
-    scatter_plot = create_scatter_plot(filtered_df)
-    histogram = create_histogram(filtered_transfers_df)
+    total_points_chart = create_total_points_chart(filtered_df)
+    points_earned_chart = create_points_earned_chart(filtered_df)
+    transfers_chart = create_transfers_chart(filtered_transfers_df)
+    transfers_accumulated_chart = create_transfers_accumulated_chart(
+        filtered_transfers_df
+    )
+    transfer_efficiency_chart = create_transfer_efficiency_chart(
+        filtered_df, filtered_transfers_df
+    )
 
     if match_range:
         min_match, max_match = match_range
-        line_chart.update_layout(xaxis_range=[min_match - 0.5, max_match + 0.5])
-        scatter_plot.update_layout(xaxis_range=[min_match - 0.5, max_match + 0.5])
-        histogram.update_layout(xaxis_range=[min_match - 0.5, max_match + 0.5])
+        total_points_chart.update_layout(xaxis_range=[min_match - 0.5, max_match + 0.5])
+        points_earned_chart.update_layout(
+            xaxis_range=[min_match - 0.5, max_match + 0.5]
+        )
+        transfers_chart.update_layout(xaxis_range=[min_match - 0.5, max_match + 0.5])
+        transfers_accumulated_chart.update_layout(
+            xaxis_range=[min_match - 0.5, max_match + 0.5]
+        )
+        transfer_efficiency_chart.update_layout(
+            xaxis_range=[min_match - 0.5, max_match + 0.5]
+        )
 
-    return line_chart, scatter_plot, histogram
+    return (
+        total_points_chart,
+        points_earned_chart,
+        transfers_chart,
+        transfers_accumulated_chart,
+        transfer_efficiency_chart,
+    )
 
 
 if __name__ == "__main__":
