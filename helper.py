@@ -36,7 +36,7 @@ def create_dag(df):
     )
 
 
-def create_line_chart(df):
+def create_total_points_chart(df):
 
     teams = list(df.columns[1:])
     df = df.copy()
@@ -64,15 +64,13 @@ def create_line_chart(df):
     return fig
 
 
-def create_histogram(df):
+def create_transfers_chart(df):
     df = df.melt(id_vars="Match", var_name="Team", value_name="Transfers")
-    fig = px.bar(
+    fig = px.scatter(
         df,
         x="Match",
         y="Transfers",
         color="Team",
-        barmode="group",
-        text_auto=".2s",
     )
     fig.update_layout(
         height=415,
@@ -83,11 +81,98 @@ def create_histogram(df):
             title="", orientation="v", yanchor="top", y=1, xanchor="left", x=1.02
         ),
         margin=dict(l=20, r=20, t=20, b=20),
+        yaxis=dict(tickmode="linear", tick0=0, dtick=1),
     )
     return fig
 
 
-def create_scatter_plot(df):
+def create_transfers_accumulated_chart(df):
+    df = df.melt(id_vars="Match", var_name="Team", value_name="Transfers")
+
+    df["Transfers accumulated"] = df.groupby("Team")["Transfers"].cumsum()
+    df = df.drop(columns=["Transfers"])
+    df["Match"] = df["Match"].astype(int)
+    df = df.sort_values(by=["Team", "Match"]).reset_index(drop=True)
+
+    fig = px.line(
+        df,
+        x="Match",
+        y="Transfers accumulated",
+        color="Team",
+        markers=True,
+        line_shape="spline",
+    )
+    fig.update_traces(mode="lines+markers")
+    fig.update_layout(
+        height=415,
+        plot_bgcolor="white",
+        xaxis_title="Match",
+        yaxis_title="Transfers Accumulated",
+        legend=dict(
+            title="", orientation="v", yanchor="top", y=1, xanchor="left", x=1.02
+        ),
+        margin=dict(l=20, r=20, t=20, b=20),
+    )
+    return fig
+
+
+def create_transfer_efficiency_chart(df, transfers_df):
+
+    transfers_df.fillna(0, inplace=True)
+
+    df.set_index("Match", inplace=True)
+    transfers_df.set_index("Match", inplace=True)
+
+    cumulative_points = df.cumsum()
+    cumulative_transfers = transfers_df.cumsum()
+
+    efficiency = cumulative_points / cumulative_transfers.replace(0, pd.NA)
+
+    efficiency = efficiency.reset_index()
+
+    efficiency_melted = efficiency.melt(
+        id_vars="Match", var_name="Team", value_name="Transfer Efficiency"
+    )
+    min_match = efficiency_melted["Match"].min()
+    max_match = efficiency_melted["Match"].max()
+    fig = px.line(
+        efficiency_melted,
+        x="Match",
+        y="Transfer Efficiency",
+        color="Team",
+        markers=True,
+        line_shape="spline",
+    )
+    fig.update_traces(mode="lines+markers")
+    fig.update_layout(
+        height=415,
+        plot_bgcolor="white",
+        xaxis_title="Match",
+        xaxis_range=[
+            efficiency_melted["Match"].min() - 0.5,
+            efficiency_melted["Match"].max() + 0.5,
+        ],
+        yaxis_range=[
+            efficiency_melted["Transfer Efficiency"][
+                efficiency_melted["Match"] == min_match
+            ].min()
+            - 50,
+            efficiency_melted["Transfer Efficiency"][
+                efficiency_melted["Match"] == max_match
+            ].max()
+            + 50,
+        ],
+        yaxis_title="Efficiency (Points / Transfers)",
+        legend=dict(
+            title="", orientation="v", yanchor="top", y=1, xanchor="left", x=1.02
+        ),
+        margin=dict(l=20, r=20, t=20, b=20),
+    )
+
+    return fig
+
+
+def create_points_earned_chart(df):
     df = df.melt(id_vars="Match", var_name="Team", value_name="Points")
     fig = px.scatter(
         df,
