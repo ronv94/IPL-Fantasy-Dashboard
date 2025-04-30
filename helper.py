@@ -3,7 +3,14 @@ import dash_mantine_components as dmc
 import dash_ag_grid as dag
 import plotly.express as px
 
-from constants import TEAMS, TEAM_COLORS, DATA_PATH, DATA_TRANSFERS_PATH
+from constants import (
+    TEAMS,
+    TEAM_COLORS,
+    DATA_PATH,
+    DATA_TRANSFERS_PATH,
+    UP_TRIANGLE_ICON,
+    DOWN_TRIANGLE_ICON,
+)
 
 
 def load_data(file_path):
@@ -200,16 +207,47 @@ def create_points_earned_chart(df):
 def create_leaderboard_table(df):
     team_points = df.drop(columns=["Match"]).sum().reset_index()
     team_points.columns = ["Team Name", "Total Points"]
-
     team_points["Rank"] = (
         team_points["Total Points"].rank(ascending=False, method="min").astype(int)
     )
-
     team_points = team_points.sort_values("Rank")
+
+    team_points_prev = df.drop(columns=["Match"]).iloc[:-1].sum().reset_index()
+    team_points_prev.columns = ["Team Name", "Total Points"]
+    team_points_prev["Rank"] = (
+        team_points_prev["Total Points"].rank(ascending=False, method="min").astype(int)
+    )
+    team_points_prev = team_points_prev.sort_values("Rank")
+
+    UP_TRIANGLE_ICON = {
+        "icon": "triangle-up",
+        "color": "#2ecc71",  # or "green"
+        "size": 14,
+    }
+
+    DOWN_TRIANGLE_ICON = {
+        "icon": "triangle-down",
+        "color": "#e74c3c",  # or "red"
+        "size": 14,
+    }
+
+    # create a column in team_points to show the change in rank
+    team_points["Rank Change"] = team_points["Rank"] - team_points_prev["Rank"]
+    team_points["Rank Change Icon"] = team_points["Rank Change"].apply(
+        lambda x: UP_TRIANGLE_ICON if x < 0 else DOWN_TRIANGLE_ICON if x > 0 else None
+    )
 
     table = dag.AgGrid(
         id="rank-table",
         columnDefs=[
+            {
+                "field": "Rank Change Icon",
+                "maxWidth": 70,
+                "minWidth": 40,
+                "sortable": False,
+                "cellRenderer": "rankChangeRenderer",
+                "cellStyle": {},
+            },
             {
                 "headerName": "Rank",
                 "field": "Rank",
