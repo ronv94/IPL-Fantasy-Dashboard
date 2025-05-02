@@ -240,14 +240,14 @@ def create_leaderboard_table(df):
     table = dag.AgGrid(
         id="rank-table",
         columnDefs=[
-            {
-                "field": "Rank Change Icon",
-                "maxWidth": 70,
-                "minWidth": 40,
-                "sortable": False,
-                # "cellRenderer": "rankChangeRenderer",
-                # "cellStyle": {},
-            },
+            # {
+            #     "field": "Rank Change Icon",
+            #     "maxWidth": 70,
+            #     "minWidth": 40,
+            #     "sortable": False,
+            #     # "cellRenderer": "rankChangeRenderer",
+            #     # "cellStyle": {},
+            # },
             {
                 "headerName": "Rank",
                 "field": "Rank",
