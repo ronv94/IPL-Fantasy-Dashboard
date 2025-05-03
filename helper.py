@@ -219,41 +219,32 @@ def create_leaderboard_table(df):
     )
     team_points_prev = team_points_prev.sort_values("Rank")
 
-    # UP_TRIANGLE_ICON = {
-    #     "icon": "triangle-up",
-    #     "color": "#2ecc71",  # or "green"
-    #     "size": 14,
-    # }
-
-    # DOWN_TRIANGLE_ICON = {
-    #     "icon": "triangle-down",
-    #     "color": "#e74c3c",  # or "red"
-    #     "size": 14,
-    # }
-
-    # # create a column in team_points to show the change in rank
-    # team_points["Rank Change"] = team_points["Rank"] - team_points_prev["Rank"]
-    # team_points["Rank Change Icon"] = team_points["Rank Change"].apply(
-    #     lambda x: UP_TRIANGLE_ICON if x < 0 else DOWN_TRIANGLE_ICON if x > 0 else None
-    # )
+    team_points = team_points.merge(
+        team_points_prev, on="Team Name", suffixes=("", "_prev")
+    )
+    team_points = team_points.rename(
+        columns={
+            "Total Points": "Total Points",
+            "Total Points_prev": "Total Points Prev",
+            "Rank": "Rank",
+            "Rank_prev": "Rank Prev",
+        }
+    )
+    team_points["Rank Change"] = team_points["Rank"] - team_points["Rank Prev"]
+    team_points["Rank Change Icon"] = team_points["Rank Change"].apply(
+        lambda x: UP_TRIANGLE_ICON if x < 0 else DOWN_TRIANGLE_ICON if x > 0 else None
+    )
 
     table = dag.AgGrid(
         id="rank-table",
         columnDefs=[
-            # {
-            #     "field": "Rank Change Icon",
-            #     "maxWidth": 70,
-            #     "minWidth": 40,
-            #     "sortable": False,
-            #     # "cellRenderer": "rankChangeRenderer",
-            #     # "cellStyle": {},
-            # },
             {
                 "headerName": "Rank",
                 "field": "Rank",
                 "maxWidth": 70,
                 "minWidth": 40,
                 "sortable": True,
+                "cellRenderer": "rankChangeRenderer",
             },
             {
                 "headerName": "Team Name",
