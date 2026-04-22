@@ -1,7 +1,14 @@
 services:
   - type: web
     name: ipl-fantasy-dashboard
-    env: python
+    runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:server
-    plan: free
+    plan: starter
+    envVars:
+      - key: FANTASY_DB_PATH
+        value: /opt/render/project/src/data/fantasy.db
+    disk:
+      name: fantasy-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1

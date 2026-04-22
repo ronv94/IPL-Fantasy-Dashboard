@@ -6,7 +6,8 @@ TOTAL_MATCHES = 74
 
 # ─── Database ────────────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-DB_PATH = os.path.join(BASE_DIR, "data", "fantasy.db")
+DEFAULT_DB_PATH = os.path.join(BASE_DIR, "data", "fantasy.db")
+DB_PATH = os.environ.get("FANTASY_DB_PATH", DEFAULT_DB_PATH)
 
 # ─── Team Color Palette (assigned in order when teams are added) ─────────────
 TEAM_COLORS = [
