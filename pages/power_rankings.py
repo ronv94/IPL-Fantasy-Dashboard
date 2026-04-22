@@ -1,6 +1,5 @@
 import dash
 from dash import html, dcc, callback, Input, Output
-import dash_bootstrap_components as dbc
 
 from utils.models import (
     get_scores_dataframe,
@@ -31,9 +30,9 @@ layout = html.Div(
         # Power rankings table
         html.Div(id="pr-table", className="mb-4"),
         # Form guide + Streaks
-        dbc.Row(
+        html.Div(
             [
-                dbc.Col(
+                html.Div(
                     [
                         section_header(
                             "Form Guide",
@@ -41,20 +40,17 @@ layout = html.Div(
                         ),
                         html.Div(id="pr-form-guide"),
                     ],
-                    lg=6,
-                    md=12,
                     className="mb-4",
                 ),
-                dbc.Col(
+                html.Div(
                     [
                         section_header("Current Streaks", "Hot and cold runs"),
                         html.Div(id="pr-streaks"),
                     ],
-                    lg=6,
-                    md=12,
                     className="mb-4",
                 ),
-            ]
+            ],
+            className="page-two-column-grid",
         ),
         # Momentum chart
         section_header("Momentum", "5-match rolling average — see who's trending up"),

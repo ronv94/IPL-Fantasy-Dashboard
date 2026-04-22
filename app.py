@@ -1,6 +1,6 @@
 import dash
 from dash import Dash, html, dcc
-import dash_bootstrap_components as dbc
+import dash_mantine_components as dmc
 
 from utils.db import init_db
 from utils.components import create_navbar
@@ -15,7 +15,7 @@ app = Dash(
     __name__,
     use_pages=True,
     external_stylesheets=[
-        dbc.themes.DARKLY,
+        *dmc.styles.ALL,
         "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap",
     ],
     suppress_callback_exceptions=True,
@@ -27,15 +27,22 @@ server = app.server
 
 # ─── Layout ──────────────────────────────────────────────────────────────────
 
-app.layout = html.Div(
-    [
-        create_navbar(),
-        html.Div(
-            dash.page_container,
-            className="main-container",
-        ),
-    ],
-    className="app-wrapper",
+app.layout = dmc.MantineProvider(
+    forceColorScheme="dark",
+    theme={
+        "fontFamily": "Montserrat, sans-serif",
+        "primaryColor": "orange",
+    },
+    children=html.Div(
+        [
+            create_navbar(),
+            html.Div(
+                dash.page_container,
+                className="main-container",
+            ),
+        ],
+        className="app-wrapper",
+    ),
 )
 
 # ─── Run ─────────────────────────────────────────────────────────────────────

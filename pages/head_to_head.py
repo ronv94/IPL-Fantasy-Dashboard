@@ -1,6 +1,6 @@
 import dash
 from dash import html, dcc, callback, Input, Output
-import dash_bootstrap_components as dbc
+import dash_mantine_components as dmc
 
 from utils.models import (
     get_scores_dataframe,
@@ -31,54 +31,59 @@ layout = html.Div(
     [
         section_header("Head-to-Head", "Compare two teams side by side"),
         # Team selectors
-        dbc.Row(
+        html.Div(
             [
-                dbc.Col(
-                    [
-                        dbc.Label("Team A", className="form-label-custom"),
-                        dcc.Dropdown(
-                            id="h2h-team-a",
-                            placeholder="Select Team A",
-                            className="dropdown-dark",
-                        ),
-                    ],
-                    md=5,
-                    sm=12,
+                html.Div(
+                    dmc.Select(
+                        id="h2h-team-a",
+                        label="Team A",
+                        placeholder="Select Team A",
+                        classNames={
+                            "input": "form-input-custom",
+                            "label": "form-label-custom",
+                        },
+                        clearable=True,
+                        searchable=True,
+                    ),
+                    className="h2h-select-col",
                 ),
-                dbc.Col(
+                html.Div(
                     html.Div("⚔️", className="h2h-vs"),
-                    md=2,
-                    className="d-flex align-items-end justify-content-center",
+                    className="h2h-vs-col",
                 ),
-                dbc.Col(
-                    [
-                        dbc.Label("Team B", className="form-label-custom"),
-                        dcc.Dropdown(
-                            id="h2h-team-b",
-                            placeholder="Select Team B",
-                            className="dropdown-dark",
-                        ),
-                    ],
-                    md=5,
-                    sm=12,
+                html.Div(
+                    dmc.Select(
+                        id="h2h-team-b",
+                        label="Team B",
+                        placeholder="Select Team B",
+                        classNames={
+                            "input": "form-input-custom",
+                            "label": "form-label-custom",
+                        },
+                        clearable=True,
+                        searchable=True,
+                    ),
+                    className="h2h-select-col",
                 ),
             ],
-            className="mb-4",
+            className="h2h-selector-grid mb-4",
         ),
         # Win record cards
-        dbc.Row(id="h2h-win-record", className="g-3 mb-4"),
+        html.Div(id="h2h-win-record", className="overview-stat-grid mb-4"),
         # Radar + bars
-        dbc.Row(
+        html.Div(
             [
-                dbc.Col([chart_card("h2h-radar")], lg=5, md=12, className="mb-4"),
-                dbc.Col([chart_card("h2h-bars")], lg=7, md=12, className="mb-4"),
-            ]
+                html.Div([chart_card("h2h-radar")], className="mb-4"),
+                html.Div([chart_card("h2h-bars")], className="mb-4"),
+            ],
+            className="h2h-chart-grid",
         ),
         # Differential
-        dbc.Row(
+        html.Div(
             [
-                dbc.Col([chart_card("h2h-differential")], md=12, className="mb-4"),
-            ]
+                html.Div([chart_card("h2h-differential")], className="mb-4"),
+            ],
+            className="page-single-column",
         ),
     ],
     className="page-content",
@@ -89,8 +94,8 @@ layout = html.Div(
 
 
 @callback(
-    Output("h2h-team-a", "options"),
-    Output("h2h-team-b", "options"),
+    Output("h2h-team-a", "data"),
+    Output("h2h-team-b", "data"),
     Input("h2h-team-a", "id"),  # fires once on load
 )
 def populate_dropdowns(_):
@@ -132,32 +137,14 @@ def update_h2h(team_a, team_b):
 
     # Win record cards
     win_cards = [
-        dbc.Col(
-            create_stat_card(
-                team_a, str(h2h["wins_a"]), "matches won", colors.get(team_a, "#888")
-            ),
-            md=3,
-            sm=6,
+        create_stat_card(
+            team_a, str(h2h["wins_a"]), "matches won", colors.get(team_a, "#888")
         ),
-        dbc.Col(
-            create_stat_card("Draws", str(h2h["draws"]), "tied matches", "#888"),
-            md=3,
-            sm=6,
+        create_stat_card("Draws", str(h2h["draws"]), "tied matches", "#888"),
+        create_stat_card(
+            team_b, str(h2h["wins_b"]), "matches won", colors.get(team_b, "#888")
         ),
-        dbc.Col(
-            create_stat_card(
-                team_b, str(h2h["wins_b"]), "matches won", colors.get(team_b, "#888")
-            ),
-            md=3,
-            sm=6,
-        ),
-        dbc.Col(
-            create_stat_card(
-                "Matches", str(h2h["matches_played"]), "played", "#4CC9F0"
-            ),
-            md=3,
-            sm=6,
-        ),
+        create_stat_card("Matches", str(h2h["matches_played"]), "played", "#4CC9F0"),
     ]
 
     # Radar chart data
