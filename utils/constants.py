@@ -8,9 +8,6 @@ TOTAL_MATCHES = 74
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, "data", "fantasy.db")
 
-# ─── Admin ───────────────────────────────────────────────────────────────────
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "rasiya2026")
-
 # ─── Team Color Palette (assigned in order when teams are added) ─────────────
 TEAM_COLORS = [
     "#FF6B35",  # Vivid Orange
