@@ -650,6 +650,178 @@ body {
     border-bottom: 1px solid var(--border-subtle) !important;
 }
 
+.admin-match-pagination-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.admin-match-pagination {
+    overflow-x: auto;
+}
+
+.admin-match-fixture-shell {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.08), rgba(58, 134, 255, 0.08));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius);
+}
+
+.admin-match-fixture-main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-match-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.admin-match-number-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 210, 63, 0.12);
+    color: var(--accent-yellow);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.admin-match-fixture {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.admin-match-team-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 108px;
+}
+
+.admin-match-team-logo,
+.admin-match-team-logo-fallback {
+    width: 92px;
+    height: 92px;
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(13, 17, 23, 0.8);
+    object-fit: contain;
+    padding: 12px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.admin-match-team-logo-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.admin-match-team-code {
+    color: var(--text-primary);
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.admin-match-versus {
+    color: var(--accent-orange);
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+.admin-match-stadium {
+    width: 320px;
+    min-width: 320px;
+    flex: 0 0 320px;
+    min-height: 126px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: rgba(13, 17, 23, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-match-stadium-label {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+}
+
+.admin-match-detail-date {
+    color: var(--accent-yellow);
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.admin-match-stadium-value {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.admin-match-data-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-team-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+}
+
+.admin-team-entry-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+}
+
+.admin-team-entry-name {
+    font-size: 0.98rem;
+    font-weight: 700;
+}
+
+.admin-team-entry-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(160px, 220px));
+    gap: 12px;
+}
+
+.admin-team-entry-field {
+    min-width: 0;
+}
+
 .admin-team-row {
     display: flex;
     align-items: center;
@@ -718,6 +890,26 @@ body {
     .form-block {
         width: 20px;
         height: 16px;
+    }
+
+    .admin-match-fixture-shell,
+    .admin-team-entry {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .admin-match-stadium {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .admin-team-entry-heading,
+    .admin-team-entry-inputs {
+        width: 100%;
+    }
+
+    .admin-team-entry-inputs {
+        grid-template-columns: 1fr;
     }
 }
 
