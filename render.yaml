@@ -5,6 +5,3 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:server
     plan: free
-    envVars:
-      - key: ADMIN_PASSWORD
-        sync: false

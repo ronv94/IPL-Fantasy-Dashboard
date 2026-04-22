@@ -2,7 +2,7 @@ import dash
 from dash import html, dcc, callback, Input, Output, State, ctx, ALL, no_update
 import dash_bootstrap_components as dbc
 
-from utils.constants import ADMIN_PASSWORD, TEAM_COLORS, TOTAL_MATCHES
+from utils.constants import TEAM_COLORS, TOTAL_MATCHES
 from utils.models import (
     get_all_teams,
     add_team,
@@ -24,40 +24,8 @@ dash.register_page(__name__, path="/admin", name="Admin", order=4)
 
 layout = html.Div(
     [
-        # Auth store (session-level)
-        dcc.Store(id="admin-auth", storage_type="session"),
-        # Password gate
-        html.Div(
-            id="admin-gate",
-            children=[
-                html.Div(
-                    [
-                        html.H3("🔒 Admin Access", className="text-center mb-4"),
-                        dbc.Input(
-                            id="admin-password",
-                            type="password",
-                            placeholder="Enter admin password",
-                            className="form-input-custom mb-3",
-                        ),
-                        dbc.Button(
-                            "Unlock",
-                            id="admin-unlock-btn",
-                            color="warning",
-                            className="w-100",
-                        ),
-                        html.Div(
-                            id="admin-auth-error",
-                            className="text-danger text-center mt-2",
-                        ),
-                    ],
-                    className="admin-login-box",
-                ),
-            ],
-        ),
-        # Admin panel (hidden until authenticated)
         html.Div(
             id="admin-panel",
-            style={"display": "none"},
             children=[
                 section_header("Admin Panel", "Manage teams, enter match data"),
                 # ── Team Management ──
@@ -314,33 +282,6 @@ layout = html.Div(
 )
 
 
-# ─── Authentication ──────────────────────────────────────────────────────────
-
-
-@callback(
-    Output("admin-auth", "data"),
-    Output("admin-auth-error", "children"),
-    Input("admin-unlock-btn", "n_clicks"),
-    State("admin-password", "value"),
-    prevent_initial_call=True,
-)
-def authenticate(n_clicks, password):
-    if password == ADMIN_PASSWORD:
-        return True, ""
-    return False, "❌ Incorrect password"
-
-
-@callback(
-    Output("admin-gate", "style"),
-    Output("admin-panel", "style"),
-    Input("admin-auth", "data"),
-)
-def toggle_admin(auth):
-    if auth:
-        return {"display": "none"}, {"display": "block"}
-    return {"display": "block"}, {"display": "none"}
-
-
 # ─── Team Management ────────────────────────────────────────────────────────
 
 
@@ -595,7 +536,6 @@ def delete_match(n_clicks, match_number):
     Input("admin-save-transfers-btn", "n_clicks"),
     Input("admin-delete-btn", "n_clicks"),
     Input("admin-add-team-btn", "n_clicks"),
-    Input("admin-auth", "data"),
 )
 def update_summary(*_):
     teams = get_all_teams()

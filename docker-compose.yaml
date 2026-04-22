@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ipl-fantasy-dashboard
+    container_name: ipl-fantasy-dashboard
+    ports:
+      - "${PORT:-8050}:8050"
+    volumes:
+      - ./data:/app/data
+    environment:
+      PORT: "${PORT:-8050}"
+    restart: unless-stopped
