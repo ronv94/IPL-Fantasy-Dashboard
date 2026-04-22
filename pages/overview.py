@@ -1,6 +1,6 @@
 import dash
 from dash import html, dcc, callback, Input, Output
-import dash_bootstrap_components as dbc
+import dash_mantine_components as dmc
 
 from utils.constants import TOTAL_MATCHES
 from utils.models import (
@@ -30,46 +30,43 @@ layout = html.Div(
         # Season progress
         html.Div(id="overview-progress"),
         # Quick stat cards
-        dbc.Row(id="overview-stat-cards", className="g-3 mb-4"),
+        html.Div(id="overview-stat-cards", className="overview-stat-grid mb-4"),
         # Main content: leaderboard + race chart
-        dbc.Row(
+        html.Div(
             [
-                dbc.Col(
+                html.Div(
                     [
                         section_header("Leaderboard", "Current standings"),
                         html.Div(id="overview-leaderboard"),
                     ],
-                    lg=4,
-                    md=12,
                     className="mb-4",
                 ),
-                dbc.Col(
+                html.Div(
                     [
                         section_header(
                             "Points Race", "Cumulative points over the season"
                         ),
                         chart_card("overview-race-chart"),
                     ],
-                    lg=8,
-                    md=12,
                     className="mb-4",
                 ),
-            ]
+            ],
+            className="overview-main-grid",
         ),
         # Points per match
-        dbc.Row(
+        html.Div(
             [
-                dbc.Col(
+                html.Div(
                     [
                         section_header(
                             "Points Per Match", "Individual match performances"
                         ),
                         chart_card("overview-earned-chart"),
                     ],
-                    md=12,
                     className="mb-4",
                 ),
-            ]
+            ],
+            className="page-single-column",
         ),
         # Latest match card
         html.Div(id="overview-latest-match"),
@@ -134,45 +131,29 @@ def update_overview(_n):
     mvp_pts = last_row[mvp_team]
 
     cards = [
-        dbc.Col(
-            create_stat_card(
-                "👑 Leader",
-                leader["Team"],
-                f"{leader['Total Points']:,.0f} pts",
-                "#FFD23F",
-                "",
-            ),
-            md=3,
-            sm=6,
+        create_stat_card(
+            "👑 Leader",
+            leader["Team"],
+            f"{leader['Total Points']:,.0f} pts",
+            "#FFD23F",
+            "",
         ),
-        dbc.Col(
-            create_stat_card(
-                "📏 Gap", f"{gap:,.0f}", f"pts between 1st & 2nd", "#EF476F", ""
-            ),
-            md=3,
-            sm=6,
+        create_stat_card(
+            "📏 Gap", f"{gap:,.0f}", f"pts between 1st & 2nd", "#EF476F", ""
         ),
-        dbc.Col(
-            create_stat_card(
-                "🚀 Biggest Mover",
-                biggest_mover["Team"],
-                f"{mover_dir} {abs(int(biggest_mover['Rank Change']))} spots",
-                "#06D6A0",
-                "",
-            ),
-            md=3,
-            sm=6,
+        create_stat_card(
+            "🚀 Biggest Mover",
+            biggest_mover["Team"],
+            f"{mover_dir} {abs(int(biggest_mover['Rank Change']))} spots",
+            "#06D6A0",
+            "",
         ),
-        dbc.Col(
-            create_stat_card(
-                "⭐ Last MVP",
-                mvp_team,
-                f"Match {int(last_row['Match'])} — {mvp_pts:,.0f} pts",
-                "#4CC9F0",
-                "",
-            ),
-            md=3,
-            sm=6,
+        create_stat_card(
+            "⭐ Last MVP",
+            mvp_team,
+            f"Match {int(last_row['Match'])} — {mvp_pts:,.0f} pts",
+            "#4CC9F0",
+            "",
         ),
     ]
 
@@ -215,12 +196,11 @@ def _build_latest_match(last_row, teams, colors):
             )
         )
 
-    return dbc.Card(
-        dbc.CardBody(
-            [
-                html.H5(f"Match {match_num} Results", className="latest-title"),
-                html.Div(rows, className="latest-results"),
-            ]
-        ),
+    return dmc.Paper(
+        [
+            html.H5(f"Match {match_num} Results", className="latest-title"),
+            html.Div(rows, className="latest-results"),
+        ],
         className="latest-match-card mb-4",
+        p="lg",
     )

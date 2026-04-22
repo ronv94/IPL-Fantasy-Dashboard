@@ -1,6 +1,5 @@
 import dash
 from dash import html, dcc, callback, Input, Output
-import dash_bootstrap_components as dbc
 
 from utils.models import (
     get_scores_dataframe,
@@ -34,13 +33,12 @@ layout = html.Div(
             "Stats & Analytics", "Deep dive into scoring patterns and team performance"
         ),
         # Distribution + Heatmap
-        dbc.Row(
+        html.Div(
             [
-                dbc.Col(
-                    [chart_card("stats-distribution")], lg=6, md=12, className="mb-4"
-                ),
-                dbc.Col([chart_card("stats-heatmap")], lg=6, md=12, className="mb-4"),
-            ]
+                html.Div([chart_card("stats-distribution")], className="mb-4"),
+                html.Div([chart_card("stats-heatmap")], className="mb-4"),
+            ],
+            className="page-two-column-grid",
         ),
         # Consistency table
         section_header(
@@ -49,32 +47,26 @@ layout = html.Div(
         ),
         html.Div(id="stats-consistency-table", className="mb-4"),
         # Rolling average + Transfer efficiency
-        dbc.Row(
+        html.Div(
             [
-                dbc.Col(
-                    [chart_card("stats-rolling-avg")], lg=6, md=12, className="mb-4"
-                ),
-                dbc.Col(
-                    [chart_card("stats-transfer-eff")], lg=6, md=12, className="mb-4"
-                ),
-            ]
+                html.Div([chart_card("stats-rolling-avg")], className="mb-4"),
+                html.Div([chart_card("stats-transfer-eff")], className="mb-4"),
+            ],
+            className="page-two-column-grid",
         ),
         # Transfers
-        dbc.Row(
+        html.Div(
             [
-                dbc.Col(
+                html.Div(
                     [chart_card("stats-transfers-per-match")],
-                    lg=6,
-                    md=12,
                     className="mb-4",
                 ),
-                dbc.Col(
+                html.Div(
                     [chart_card("stats-transfers-accumulated")],
-                    lg=6,
-                    md=12,
                     className="mb-4",
                 ),
-            ]
+            ],
+            className="page-two-column-grid",
         ),
     ],
     className="page-content",

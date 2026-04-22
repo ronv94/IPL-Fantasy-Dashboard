@@ -2,7 +2,6 @@ import dash
 from datetime import date, datetime
 
 from dash import html, dcc, callback, Input, Output, State, ctx, ALL
-import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 
 from utils.constants import TEAM_COLORS, TOTAL_MATCHES
@@ -164,7 +163,7 @@ def _build_fixture_panel(match_number, details):
 
 def _build_match_data_fields(teams, existing_scores, existing_transfers):
     if not teams:
-        return html.P("Add teams first", className="text-muted")
+        return dmc.Text("Add teams first", className="text-muted")
 
     entries = []
     for team in teams:
@@ -190,37 +189,41 @@ def _build_match_data_fields(teams, existing_scores, existing_transfers):
                         [
                             html.Div(
                                 [
-                                    dbc.Label("Score", className="form-label-custom"),
-                                    dbc.Input(
+                                    dmc.NumberInput(
                                         id={
                                             "type": "match-score-input",
                                             "index": team_name,
                                         },
-                                        type="number",
                                         step=0.5,
                                         placeholder="Points",
                                         value=existing_scores.get(team_name, ""),
-                                        className="form-input-custom",
+                                        label="Score",
+                                        hideControls=True,
+                                        classNames={
+                                            "input": "form-input-custom",
+                                            "label": "form-label-custom",
+                                        },
                                     ),
                                 ],
                                 className="admin-team-entry-field",
                             ),
                             html.Div(
                                 [
-                                    dbc.Label(
-                                        "Transfers", className="form-label-custom"
-                                    ),
-                                    dbc.Input(
+                                    dmc.NumberInput(
                                         id={
                                             "type": "match-transfer-input",
                                             "index": team_name,
                                         },
-                                        type="number",
                                         step=1,
                                         min=0,
                                         placeholder="Transfers",
                                         value=existing_transfers.get(team_name, ""),
-                                        className="form-input-custom",
+                                        label="Transfers",
+                                        hideControls=True,
+                                        classNames={
+                                            "input": "form-input-custom",
+                                            "label": "form-label-custom",
+                                        },
                                     ),
                                 ],
                                 className="admin-team-entry-field",
@@ -248,14 +251,17 @@ def layout():
                 id="admin-panel",
                 children=[
                     section_header("Admin Panel", "Manage teams and update match data"),
-                    dbc.Card(
+                    dmc.Paper(
                         [
-                            dbc.CardHeader(
-                                html.H5("Team Management", className="mb-0")
+                            html.Div(
+                                html.H5(
+                                    "Team Management", className="mb-0 admin-card-title"
+                                ),
+                                className="admin-card-header",
                             ),
-                            dbc.CardBody(
+                            html.Div(
                                 [
-                                    dbc.Row(
+                                    html.Div(
                                         [
                                             form_field(
                                                 "Team Name",
@@ -269,9 +275,9 @@ def layout():
                                                 "text",
                                                 "e.g. TK",
                                             ),
-                                            dbc.Col(
+                                            html.Div(
                                                 [
-                                                    dbc.Label(
+                                                    html.Label(
                                                         "Color",
                                                         className="form-label-custom",
                                                     ),
@@ -303,118 +309,115 @@ def layout():
                                                         className="dropdown-dark",
                                                     ),
                                                 ],
-                                                md=4,
-                                                sm=6,
-                                                xs=12,
-                                                className="mb-3",
+                                                className="form-field-col mb-3",
                                             ),
-                                        ]
+                                        ],
+                                        className="admin-team-form-grid",
                                     ),
-                                    dbc.Button(
+                                    dmc.Button(
                                         "Add Team",
                                         id="admin-add-team-btn",
-                                        color="success",
-                                        className="me-2",
+                                        color="green",
+                                        className="admin-action-button",
                                     ),
                                     html.Div(id="admin-team-msg", className="mt-2"),
-                                    html.Hr(),
+                                    dmc.Divider(my="md"),
                                     html.H6("Active Teams"),
                                     html.Div(id="admin-teams-list"),
-                                ]
+                                ],
+                                className="admin-card-body",
                             ),
                         ],
                         className="admin-card mb-4",
                     ),
-                    dbc.Card(
+                    dmc.Paper(
                         [
-                            dbc.CardHeader(
-                                html.H5("Enter Match Data", className="mb-0")
+                            html.Div(
+                                html.H5(
+                                    "Enter Match Data",
+                                    className="mb-0 admin-card-title",
+                                ),
+                                className="admin-card-header",
                             ),
-                            dbc.CardBody(
+                            html.Div(
                                 [
-                                    dmc.MantineProvider(
-                                        forceColorScheme="dark",
-                                        theme={
-                                            "fontFamily": "Montserrat, sans-serif",
-                                            "primaryColor": "orange",
-                                        },
-                                        children=html.Div(
-                                            dmc.Pagination(
-                                                id="admin-match-pagination",
-                                                total=pagination_total,
-                                                value=default_match,
-                                                withEdges=True,
-                                                boundaries=1,
-                                                siblings=1,
-                                                radius="xl",
-                                                size="md",
-                                                color="orange",
-                                                className="admin-match-pagination",
-                                            ),
-                                            className="admin-match-pagination-wrap",
+                                    html.Div(
+                                        dmc.Pagination(
+                                            id="admin-match-pagination",
+                                            total=pagination_total,
+                                            value=default_match,
+                                            withEdges=True,
+                                            boundaries=1,
+                                            siblings=1,
+                                            radius="xl",
+                                            size="md",
+                                            color="orange",
+                                            className="admin-match-pagination",
                                         ),
+                                        className="admin-match-pagination-wrap",
                                     ),
                                     html.Div(
                                         id="admin-match-fixture", className="mt-4"
                                     ),
                                     html.Div(id="admin-match-fields", className="mt-4"),
-                                    dbc.Button(
+                                    dmc.Button(
                                         "Save Match Data",
                                         id="admin-save-match-data-btn",
-                                        color="success",
-                                        className="me-2 mt-3",
+                                        color="green",
+                                        className="admin-action-button mt-3",
                                     ),
                                     html.Div(
                                         id="admin-match-data-msg", className="mt-2"
                                     ),
-                                ]
+                                ],
+                                className="admin-card-body",
                             ),
                         ],
                         className="admin-card mb-4",
                     ),
-                    dbc.Card(
+                    dmc.Paper(
                         [
-                            dbc.CardHeader(
-                                html.H5("⚠️ Danger Zone", className="mb-0 text-danger")
+                            html.Div(
+                                html.H5(
+                                    "⚠️ Danger Zone",
+                                    className="mb-0 text-danger admin-card-title",
+                                ),
+                                className="admin-card-header",
                             ),
-                            dbc.CardBody(
+                            html.Div(
                                 [
-                                    dbc.Row(
+                                    html.Div(
                                         [
-                                            dbc.Col(
-                                                [
-                                                    dbc.Label(
-                                                        "Match # to delete",
-                                                        className="form-label-custom",
-                                                    ),
-                                                    dbc.Input(
-                                                        id="admin-delete-match",
-                                                        type="number",
-                                                        min=1,
-                                                        max=TOTAL_MATCHES,
-                                                        value=default_match,
-                                                        className="form-input-custom",
-                                                    ),
-                                                ],
-                                                md=3,
-                                                className="mb-3",
+                                            html.Div(
+                                                dmc.NumberInput(
+                                                    id="admin-delete-match",
+                                                    min=1,
+                                                    max=TOTAL_MATCHES,
+                                                    value=default_match,
+                                                    label="Match # to delete",
+                                                    hideControls=True,
+                                                    classNames={
+                                                        "input": "form-input-custom",
+                                                        "label": "form-label-custom",
+                                                    },
+                                                ),
+                                                className="admin-danger-input",
                                             ),
-                                            dbc.Col(
-                                                [
-                                                    dbc.Button(
-                                                        "Delete Match Data",
-                                                        id="admin-delete-btn",
-                                                        color="danger",
-                                                        className="mt-4",
-                                                    ),
-                                                ],
-                                                md=3,
-                                                className="mb-3",
+                                            html.Div(
+                                                dmc.Button(
+                                                    "Delete Match Data",
+                                                    id="admin-delete-btn",
+                                                    color="red",
+                                                    className="admin-danger-button",
+                                                ),
+                                                className="admin-danger-action",
                                             ),
-                                        ]
+                                        ],
+                                        className="admin-danger-grid",
                                     ),
                                     html.Div(id="admin-delete-msg", className="mt-2"),
-                                ]
+                                ],
+                                className="admin-card-body",
                             ),
                         ],
                         className="admin-card mb-4",
@@ -474,18 +477,20 @@ def manage_teams(add_clicks, deactivate_clicks, reactivate_clicks, name, abbr, c
     for t in teams:
         status = "Active" if t["active"] else "Inactive"
         btn = (
-            dbc.Button(
+            dmc.Button(
                 "Deactivate",
                 id={"type": "deactivate-team", "index": t["id"]},
-                color="warning",
+                color="yellow",
                 size="sm",
+                variant="light",
             )
             if t["active"]
-            else dbc.Button(
+            else dmc.Button(
                 "Reactivate",
                 id={"type": "reactivate-team", "index": t["id"]},
-                color="success",
+                color="green",
                 size="sm",
+                variant="light",
             )
         )
         team_rows.append(
@@ -626,16 +631,13 @@ def update_summary(*_):
     teams = get_all_teams()
     matches = get_all_matches()
     max_match = get_max_match_number()
-    return dbc.Card(
-        dbc.CardBody(
-            [
-                html.H6("📊 Database Summary"),
-                html.P(f"Active teams: {len(teams)}"),
-                html.P(f"Matches entered: {len(matches)}"),
-                html.P(
-                    f"Latest match: #{max_match}" if max_match else "No matches yet"
-                ),
-            ]
-        ),
+    return dmc.Paper(
+        [
+            html.H6("📊 Database Summary"),
+            html.P(f"Active teams: {len(teams)}"),
+            html.P(f"Matches entered: {len(matches)}"),
+            html.P(f"Latest match: #{max_match}" if max_match else "No matches yet"),
+        ],
         className="admin-card",
+        p="lg",
     )

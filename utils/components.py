@@ -1,7 +1,7 @@
 """Reusable Dash UI components."""
 
 from dash import html, dcc
-import dash_bootstrap_components as dbc
+import dash_mantine_components as dmc
 
 
 # ─── Navbar ──────────────────────────────────────────────────────────────────
@@ -16,49 +16,36 @@ NAV_ITEMS = [
 
 
 def create_navbar():
-    return dbc.Navbar(
-        dbc.Container(
+    return dmc.Paper(
+        dmc.Flex(
             [
-                dbc.Row(
+                html.Div(
                     [
-                        dbc.Col(
-                            html.Div(
-                                [
-                                    html.Span("🏏", className="navbar-emoji"),
-                                    html.Span(
-                                        "IPL Rasiya", className="navbar-brand-text"
-                                    ),
-                                    html.Span("2026", className="navbar-year"),
-                                ],
-                                className="navbar-brand-group",
-                            ),
-                            width="auto",
-                        ),
-                        dbc.Col(
-                            dbc.Nav(
-                                [
-                                    dbc.NavItem(
-                                        dbc.NavLink(
-                                            item["label"],
-                                            href=item["href"],
-                                            className="nav-link-custom",
-                                        )
-                                    )
-                                    for item in NAV_ITEMS
-                                ],
-                                navbar=True,
-                                className="ms-auto",
-                            ),
-                        ),
+                        html.Span("🏏", className="navbar-emoji"),
+                        html.Span("IPL Rasiya", className="navbar-brand-text"),
+                        html.Span("2026", className="navbar-year"),
                     ],
-                    align="center",
-                    className="w-100",
+                    className="navbar-brand-group",
+                ),
+                html.Div(
+                    [
+                        dcc.Link(
+                            item["label"],
+                            href=item["href"],
+                            className="nav-link-custom",
+                        )
+                        for item in NAV_ITEMS
+                    ],
+                    className="navbar-links",
                 ),
             ],
-            fluid=True,
+            align="center",
+            justify="space-between",
+            wrap="wrap",
+            className="navbar-shell",
         ),
         className="navbar-custom",
-        dark=True,
+        radius=0,
     )
 
 
@@ -66,21 +53,20 @@ def create_navbar():
 
 
 def create_stat_card(title, value, subtitle="", color="#FF6B35", icon=""):
-    return dbc.Card(
-        dbc.CardBody(
-            [
-                html.Div(
-                    [
-                        html.Span(icon, className="stat-card-icon") if icon else None,
-                        html.H6(title, className="stat-card-title"),
-                    ],
-                    className="stat-card-header",
-                ),
-                html.H3(value, className="stat-card-value", style={"color": color}),
-                html.P(subtitle, className="stat-card-subtitle") if subtitle else None,
-            ]
-        ),
+    return dmc.Paper(
+        [
+            html.Div(
+                [
+                    html.Span(icon, className="stat-card-icon") if icon else None,
+                    html.H6(title, className="stat-card-title"),
+                ],
+                className="stat-card-header",
+            ),
+            html.H3(value, className="stat-card-value", style={"color": color}),
+            html.P(subtitle, className="stat-card-subtitle") if subtitle else None,
+        ],
         className="stat-card",
+        p="lg",
     )
 
 
@@ -102,9 +88,10 @@ def section_header(title, subtitle=""):
 
 def chart_card(graph_id, height=None):
     style = {"height": height} if height else {}
-    return dbc.Card(
+    return dmc.Paper(
         dcc.Graph(id=graph_id, config={"displayModeBar": False}, style=style),
         className="chart-card",
+        p="xs",
     )
 
 
@@ -131,21 +118,27 @@ def create_badge(icon, team, detail, color="#FFD23F"):
 
 
 def form_field(label, input_id, input_type="number", placeholder="", value=""):
-    return dbc.Col(
-        [
-            dbc.Label(label, className="form-label-custom"),
-            dbc.Input(
-                id=input_id,
-                type=input_type,
-                placeholder=placeholder,
-                value=value,
-                className="form-input-custom",
-            ),
-        ],
-        md=4,
-        sm=6,
-        xs=12,
-        className="mb-3",
+    if input_type == "number":
+        input_component = dmc.NumberInput(
+            id=input_id,
+            value=None if value == "" else value,
+            placeholder=placeholder,
+            classNames={"input": "form-input-custom", "label": "form-label-custom"},
+            hideControls=True,
+            label=label,
+        )
+    else:
+        input_component = dmc.TextInput(
+            id=input_id,
+            value=value,
+            placeholder=placeholder,
+            classNames={"input": "form-input-custom", "label": "form-label-custom"},
+            label=label,
+        )
+
+    return html.Div(
+        input_component,
+        className="form-field-col mb-3",
     )
 
 
@@ -181,10 +174,12 @@ def season_progress(current_match, total_matches):
                 ],
                 className="progress-header",
             ),
-            dbc.Progress(
+            dmc.Progress(
                 value=pct,
                 className="season-progress",
-                color="warning" if pct < 50 else "success",
+                color="yellow" if pct < 50 else "green",
+                radius="xl",
+                size="md",
             ),
         ],
         className="progress-wrapper",
