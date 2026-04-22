@@ -93,28 +93,69 @@ def get_all_matches():
     conn = get_connection()
     try:
         rows = conn.execute(
-            "SELECT id, match_number, description, date_played FROM matches ORDER BY match_number"
+            "SELECT id, match_number, team_1, team_2, stadium, date_played FROM matches ORDER BY match_number"
         ).fetchall()
         return [dict(r) for r in rows]
     finally:
         conn.close()
 
 
-def get_or_create_match(match_number, description="", date_played=""):
-    """Get existing match id or create one. Returns match id."""
+def get_or_create_match(
+    match_number, team_1=None, team_2=None, stadium=None, date_played=None
+):
+    """Get existing match id or create one, updating metadata when provided."""
     conn = get_connection()
     try:
         row = conn.execute(
             "SELECT id FROM matches WHERE match_number=?", (match_number,)
         ).fetchone()
         if row:
+            updates = []
+            values = []
+            for column_name, column_value in (
+                ("team_1", team_1),
+                ("team_2", team_2),
+                ("stadium", stadium),
+                ("date_played", date_played),
+            ):
+                if column_value is not None:
+                    updates.append(f"{column_name}=?")
+                    values.append(column_value)
+            if updates:
+                values.append(match_number)
+                conn.execute(
+                    f"UPDATE matches SET {', '.join(updates)} WHERE match_number=?",
+                    values,
+                )
+                conn.commit()
             return row["id"]
         cur = conn.execute(
-            "INSERT INTO matches (match_number, description, date_played) VALUES (?, ?, ?)",
-            (match_number, description, date_played),
+            "INSERT INTO matches (match_number, team_1, team_2, stadium, date_played) VALUES (?, ?, ?, ?, ?)",
+            (
+                match_number,
+                team_1 or "",
+                team_2 or "",
+                stadium or "",
+                date_played or "",
+            ),
         )
         conn.commit()
         return cur.lastrowid
+    finally:
+        conn.close()
+
+
+def get_match_details(match_number):
+    """Return match metadata for editing."""
+    conn = get_connection()
+    try:
+        row = conn.execute(
+            "SELECT team_1, team_2, stadium, date_played FROM matches WHERE match_number=?",
+            (match_number,),
+        ).fetchone()
+        if not row:
+            return {"team_1": "", "team_2": "", "stadium": "", "date_played": ""}
+        return dict(row)
     finally:
         conn.close()
 
@@ -132,12 +173,19 @@ def get_max_match_number():
 # ─── Scores ──────────────────────────────────────────────────────────────────
 
 
-def upsert_scores(match_number, scores_dict, description="", date_played=""):
+def upsert_scores(
+    match_number,
+    scores_dict,
+    team_1=None,
+    team_2=None,
+    stadium=None,
+    date_played=None,
+):
     """Insert or update scores for a match.
 
     scores_dict: {team_name: points_value, ...}
     """
-    match_id = get_or_create_match(match_number, description, date_played)
+    match_id = get_or_create_match(match_number, team_1, team_2, stadium, date_played)
     conn = get_connection()
     try:
         for team_name, points in scores_dict.items():

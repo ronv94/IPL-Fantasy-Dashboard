@@ -15,6 +15,7 @@ from utils.models import (
     delete_match_data,
     get_max_match_number,
     get_all_matches,
+    get_match_details,
 )
 from utils.components import section_header, form_field
 
@@ -133,13 +134,45 @@ layout = html.Div(
                                         dbc.Col(
                                             [
                                                 dbc.Label(
-                                                    "Description (optional)",
+                                                    "Team 1",
                                                     className="form-label-custom",
                                                 ),
                                                 dbc.Input(
-                                                    id="admin-match-desc",
+                                                    id="admin-match-team-1",
                                                     type="text",
-                                                    placeholder="e.g. MI vs CSK",
+                                                    placeholder="e.g. MI",
+                                                    className="form-input-custom",
+                                                ),
+                                            ],
+                                            md=2,
+                                            className="mb-3",
+                                        ),
+                                        dbc.Col(
+                                            [
+                                                dbc.Label(
+                                                    "Team 2",
+                                                    className="form-label-custom",
+                                                ),
+                                                dbc.Input(
+                                                    id="admin-match-team-2",
+                                                    type="text",
+                                                    placeholder="e.g. CSK",
+                                                    className="form-input-custom",
+                                                ),
+                                            ],
+                                            md=2,
+                                            className="mb-3",
+                                        ),
+                                        dbc.Col(
+                                            [
+                                                dbc.Label(
+                                                    "Stadium",
+                                                    className="form-label-custom",
+                                                ),
+                                                dbc.Input(
+                                                    id="admin-match-stadium",
+                                                    type="text",
+                                                    placeholder="e.g. Wankhede Stadium",
                                                     className="form-input-custom",
                                                 ),
                                             ],
@@ -414,6 +447,22 @@ def generate_score_fields(load_clicks, _team_add, match_number):
     )
 
 
+@callback(
+    Output("admin-match-team-1", "value"),
+    Output("admin-match-team-2", "value"),
+    Output("admin-match-stadium", "value"),
+    Input("admin-load-match-btn", "n_clicks"),
+    State("admin-match-number", "value"),
+    prevent_initial_call=True,
+)
+def load_match_metadata(_n_clicks, match_number):
+    if not match_number:
+        return "", "", ""
+
+    details = get_match_details(int(match_number))
+    return details["team_1"], details["team_2"], details["stadium"]
+
+
 # ─── Save scores ────────────────────────────────────────────────────────────
 
 
@@ -421,12 +470,14 @@ def generate_score_fields(load_clicks, _team_add, match_number):
     Output("admin-scores-msg", "children"),
     Input("admin-save-scores-btn", "n_clicks"),
     State("admin-match-number", "value"),
-    State("admin-match-desc", "value"),
+    State("admin-match-team-1", "value"),
+    State("admin-match-team-2", "value"),
+    State("admin-match-stadium", "value"),
     State({"type": "score-input", "index": ALL}, "value"),
     State({"type": "score-input", "index": ALL}, "id"),
     prevent_initial_call=True,
 )
-def save_scores(n_clicks, match_number, description, values, ids):
+def save_scores(n_clicks, match_number, team_1, team_2, stadium, values, ids):
     if not match_number:
         return "⚠️ Enter a match number"
     scores = {}
@@ -435,7 +486,13 @@ def save_scores(n_clicks, match_number, description, values, ids):
             scores[id_dict["index"]] = float(v)
     if not scores:
         return "⚠️ Enter at least one score"
-    upsert_scores(int(match_number), scores, description or "")
+    upsert_scores(
+        int(match_number),
+        scores,
+        team_1=team_1 or "",
+        team_2=team_2 or "",
+        stadium=stadium or "",
+    )
     return f"✅ Saved scores for Match {match_number}"
 
 

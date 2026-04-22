@@ -1,6 +1,7 @@
 import sqlite3
 import os
 from utils.constants import DB_PATH
+from utils.fixtures import IPL_2026_MATCHES
 
 
 def get_connection():
@@ -31,7 +32,9 @@ def init_db():
             CREATE TABLE IF NOT EXISTS matches (
                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
                 match_number INTEGER NOT NULL UNIQUE,
-                description  TEXT    DEFAULT '',
+                team_1       TEXT    DEFAULT '',
+                team_2       TEXT    DEFAULT '',
+                stadium      TEXT    DEFAULT '',
                 date_played  TEXT    DEFAULT ''
             );
 
@@ -57,6 +60,91 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_transfers_team  ON transfers(team_id);
         """
         )
+        _migrate_matches_table(conn)
+        _seed_matches_table(conn)
         conn.commit()
     finally:
         conn.close()
+
+
+def _migrate_matches_table(conn):
+    """Migrate the matches table to the current metadata schema."""
+    columns = {
+        row["name"] for row in conn.execute("PRAGMA table_info(matches)").fetchall()
+    }
+
+    if not columns:
+        return
+
+    for column_name in ("team_1", "team_2", "stadium"):
+        if column_name not in columns:
+            conn.execute(
+                f"ALTER TABLE matches ADD COLUMN {column_name} TEXT DEFAULT ''"
+            )
+
+    if "Team 1" in columns:
+        conn.execute(
+            """
+            UPDATE matches
+            SET team_1 = CASE
+                WHEN COALESCE(team_1, '') = '' THEN "Team 1"
+                ELSE team_1
+            END
+            """
+        )
+        conn.execute('ALTER TABLE matches DROP COLUMN "Team 1"')
+
+    if "Team 2" in columns:
+        conn.execute(
+            """
+            UPDATE matches
+            SET team_2 = CASE
+                WHEN COALESCE(team_2, '') = '' THEN "Team 2"
+                ELSE team_2
+            END
+            """
+        )
+        conn.execute('ALTER TABLE matches DROP COLUMN "Team 2"')
+
+    if "home" in columns:
+        conn.execute(
+            """
+            UPDATE matches
+            SET team_1 = CASE
+                WHEN COALESCE(team_1, '') = '' THEN home
+                ELSE team_1
+            END
+            """
+        )
+        conn.execute("ALTER TABLE matches DROP COLUMN home")
+
+    if "away" in columns:
+        conn.execute(
+            """
+            UPDATE matches
+            SET team_2 = CASE
+                WHEN COALESCE(team_2, '') = '' THEN away
+                ELSE team_2
+            END
+            """
+        )
+        conn.execute("ALTER TABLE matches DROP COLUMN away")
+
+    if "description" in columns:
+        conn.execute("ALTER TABLE matches DROP COLUMN description")
+
+
+def _seed_matches_table(conn):
+    """Insert the IPL 2026 fixture list without overwriting existing metadata."""
+    conn.executemany(
+        """
+        INSERT INTO matches (match_number, team_1, team_2, stadium, date_played)
+        VALUES (:match_number, :team_1, :team_2, :stadium, :date_played)
+        ON CONFLICT(match_number) DO UPDATE SET
+            team_1 = CASE WHEN COALESCE(matches.team_1, '') = '' THEN excluded.team_1 ELSE matches.team_1 END,
+            team_2 = CASE WHEN COALESCE(matches.team_2, '') = '' THEN excluded.team_2 ELSE matches.team_2 END,
+            stadium = CASE WHEN COALESCE(matches.stadium, '') = '' THEN excluded.stadium ELSE matches.stadium END,
+            date_played = CASE WHEN COALESCE(matches.date_played, '') = '' THEN excluded.date_played ELSE matches.date_played END
+        """,
+        IPL_2026_MATCHES,
+    )
