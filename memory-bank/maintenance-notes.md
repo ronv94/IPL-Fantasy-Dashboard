@@ -1,0 +1,10 @@
+- .gitignore excludes data/fantasy.db, caches, virtualenvs, .DS_Store, notebook checkpoints, editor cruft
+- .dockerignore trims git metadata, caches, local envs, fantasy.db, and non-essential files from build context
+- data/fantasy.db is intentionally ignored and should not be recommitted
+- Repo was refactored from root helpers into utils/; import paths already updated to utils.*
+- Admin password protection was removed by request; current admin page is intentionally open
+- If auth is reintroduced later, update admin page, docs, compose/env config, and deployment config together
+- Optional tracked files for project tooling/deployment: Dockerfile, docker-compose.yaml, Makefile, render.yaml, README.md, LICENSE
+- Possible cleanup candidate noted earlier: assets/ipl_rasiya_logo.png appeared unreferenced, but was not deleted
+- When changing runtime workflow, keep README and Makefile aligned
+- When changing DB location, verify utils/constants.py DB_PATH and any mounted Docker volume still point to the same data directory

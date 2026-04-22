@@ -1,0 +1,22 @@
+- Local Python run: python app.py
+- Production entry: gunicorn app:server
+- Dependencies are in requirements.txt; core stack is Dash + dash-bootstrap-components + pandas + plotly + numpy + gunicorn
+- Dockerfile uses python:3.13-slim
+- Docker image workdir: /app
+- Docker container creates /app/data and runs as non-root appuser
+- Container port: 8050; command binds gunicorn to 0.0.0.0:8050
+- docker-compose.yaml defines one service: app
+- Compose maps ${PORT:-8050}:8050 and mounts ./data:/app/data so SQLite persists on host
+- Makefile is compose-first:
+  - make build
+  - make up
+  - make stop
+  - make restart
+  - make logs
+  - make shell
+  - make ps
+  - make clean
+  - make rm-image
+- Make variables: DOCKER, COMPOSE, IMAGE, PORT
+- Current docs assume OrbStack/Docker is available locally
+- Render deploy config lives in render.yaml and starts gunicorn app:server

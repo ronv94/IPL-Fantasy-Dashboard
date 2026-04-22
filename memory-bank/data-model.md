@@ -1,0 +1,15 @@
+- SQLite DB path: data/fantasy.db via utils/constants.py DB_PATH
+- DB bootstrap runs on app startup in app.py via utils.db.init_db()
+- Tables: teams, matches, scores, transfers
+- teams: id, name UNIQUE, color, abbreviation, active, created_at
+- matches: id, match_number UNIQUE, description, date_played
+- scores: match_id + team_id UNIQUE, points REAL, cascades on match/team delete
+- transfers: match_id + team_id UNIQUE, count INT, cascades on match/team delete
+- teams are soft-deleted by active=0; most app queries use active teams only
+- Match-scoped writes use upsert_scores() and upsert_transfers() in utils/models.py
+- get_or_create_match(match_number, description, date_played) ensures match row exists before writes
+- Chart pages mainly consume pivoted DataFrames from get_scores_dataframe() and get_transfers_dataframe()
+- get_max_match_number() drives season progress and admin defaults
+- delete_match_data(match_number) removes scores/transfers and then the match row
+- Existing edit flows load per-match values with get_match_scores_for_edit() and get_match_transfers_for_edit()
+- If refactoring paths, preserve BASE_DIR -> top-level project root so DB remains outside utils/
