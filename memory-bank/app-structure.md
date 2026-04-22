@@ -1,0 +1,18 @@
+- Entry point: app.py
+- App shell: Dash with use_pages=True, Darkly theme, Montserrat font, navbar + dash.page_container
+- Shared modules live under utils/: constants, db, models, calculations, chart_helpers, components
+- Registered pages:
+  - / -> pages/overview.py
+  - /stats -> pages/stats.py
+  - /head-to-head -> pages/head_to_head.py
+  - /power-rankings -> pages/power_rankings.py
+  - /admin -> pages/admin.py
+- utils/components.py owns navbar and most reusable UI building blocks
+- Navbar branding is text/emoji-based; no logo dependency required for header
+- Overview page: leaderboard, progress, points race, points per match, latest match summary
+- Stats page: distributions, heatmap, consistency, rolling averages, transfers
+- Head-to-head page: pairwise comparison visuals and summary stats
+- Power rankings page: weighted rankings, form guide, streaks, awards/momentum
+- Admin page: open access; manages teams, scores, transfers, and match deletion
+- Most pages refresh through callbacks that pull fresh DataFrames from utils/models.py
+- Styling is centralized in assets/custom.css
