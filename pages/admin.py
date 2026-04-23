@@ -68,6 +68,19 @@ def _format_match_date(date_value):
     return parsed_date.strftime("%B %d, %Y")
 
 
+def _entry_status(score_value, transfer_value):
+    has_score = score_value not in (None, "")
+    has_transfer = transfer_value not in (None, "")
+
+    if has_score and has_transfer:
+        return "Ready", "admin-entry-status-complete"
+    if has_score:
+        return "Score only", "admin-entry-status-score"
+    if has_transfer:
+        return "Transfers only", "admin-entry-status-transfer"
+    return "Empty", "admin-entry-status-empty"
+
+
 def _match_number_options():
     matches = get_all_matches()
     if not matches:
@@ -168,65 +181,78 @@ def _build_match_data_fields(teams, existing_scores, existing_transfers):
     entries = []
     for team in teams:
         team_name = team["name"]
+        score_value = existing_scores.get(team_name, "")
+        transfer_value = existing_transfers.get(team_name, "")
+        status_text, status_class = _entry_status(score_value, transfer_value)
         entries.append(
             html.Div(
                 [
                     html.Div(
                         [
                             html.Div(
-                                className="lb-color-dot",
-                                style={"backgroundColor": team["color"]},
+                                [
+                                    html.Div(
+                                        className="lb-color-dot",
+                                        style={"backgroundColor": team["color"]},
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Span(
+                                                team_name,
+                                                className="admin-team-entry-name",
+                                                style={"color": team["color"]},
+                                            ),
+                                            html.Span(
+                                                team["abbreviation"],
+                                                className="admin-team-entry-abbr",
+                                            ),
+                                        ],
+                                        className="admin-team-entry-labels",
+                                    ),
+                                ],
+                                className="admin-team-entry-heading",
                             ),
                             html.Span(
-                                team_name,
-                                className="admin-team-entry-name",
-                                style={"color": team["color"]},
+                                status_text,
+                                className=f"admin-entry-status-pill {status_class}",
                             ),
                         ],
-                        className="admin-team-entry-heading",
+                        className="admin-team-entry-team",
                     ),
                     html.Div(
                         [
-                            html.Div(
-                                [
-                                    dmc.NumberInput(
-                                        id={
-                                            "type": "match-score-input",
-                                            "index": team_name,
-                                        },
-                                        step=0.5,
-                                        placeholder="Points",
-                                        value=existing_scores.get(team_name, ""),
-                                        label="Score",
-                                        hideControls=True,
-                                        classNames={
-                                            "input": "form-input-custom",
-                                            "label": "form-label-custom",
-                                        },
-                                    ),
-                                ],
-                                className="admin-team-entry-field",
+                            dmc.NumberInput(
+                                id={
+                                    "type": "match-score-input",
+                                    "index": team_name,
+                                },
+                                step=0.5,
+                                placeholder="Enter score",
+                                value=score_value,
+                                hideControls=True,
+                                decimalScale=1,
+                                classNames={
+                                    "input": "form-input-custom admin-entry-input",
+                                },
+                            ),
+                            dmc.NumberInput(
+                                id={
+                                    "type": "match-transfer-input",
+                                    "index": team_name,
+                                },
+                                step=1,
+                                min=0,
+                                placeholder="Enter transfers",
+                                value=transfer_value,
+                                hideControls=True,
+                                allowDecimal=False,
+                                classNames={
+                                    "input": "form-input-custom admin-entry-input",
+                                },
                             ),
                             html.Div(
-                                [
-                                    dmc.NumberInput(
-                                        id={
-                                            "type": "match-transfer-input",
-                                            "index": team_name,
-                                        },
-                                        step=1,
-                                        min=0,
-                                        placeholder="Transfers",
-                                        value=existing_transfers.get(team_name, ""),
-                                        label="Transfers",
-                                        hideControls=True,
-                                        classNames={
-                                            "input": "form-input-custom",
-                                            "label": "form-label-custom",
-                                        },
-                                    ),
-                                ],
-                                className="admin-team-entry-field",
+                                status_text,
+                                className=f"admin-entry-status-pill admin-entry-status-mobile {status_class}",
                             ),
                         ],
                         className="admin-team-entry-inputs",
@@ -236,7 +262,21 @@ def _build_match_data_fields(teams, existing_scores, existing_transfers):
             )
         )
 
-    return html.Div(entries, className="admin-match-data-grid")
+    return html.Div(
+        [
+            html.Div(
+                [
+                    html.Div("Team", className="admin-match-grid-head-cell"),
+                    html.Div("Score", className="admin-match-grid-head-cell"),
+                    html.Div("Transfers", className="admin-match-grid-head-cell"),
+                    html.Div("Status", className="admin-match-grid-head-cell"),
+                ],
+                className="admin-match-grid-head",
+            ),
+            html.Div(entries, className="admin-match-data-grid"),
+        ],
+        className="admin-match-entry-shell",
+    )
 
 
 # ─── Layout ──────────────────────────────────────────────────────────────────
@@ -358,6 +398,28 @@ def layout():
                                     ),
                                     html.Div(
                                         id="admin-match-fixture", className="mt-4"
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        "Entry Progress",
+                                                        className="admin-entry-summary-title",
+                                                    ),
+                                                    html.Div(
+                                                        "Existing values load automatically for the selected match. Only filled fields are written when you save.",
+                                                        className="admin-entry-summary-note",
+                                                    ),
+                                                ],
+                                                className="admin-entry-summary-copy",
+                                            ),
+                                            html.Div(
+                                                id="admin-match-entry-summary",
+                                                className="admin-entry-summary-stats",
+                                            ),
+                                        ],
+                                        className="admin-entry-summary-bar mt-4",
                                     ),
                                     html.Div(id="admin-match-fields", className="mt-4"),
                                     dmc.Button(
@@ -541,6 +603,48 @@ def update_match_data_editor(match_number, _team_add, _delete_clicks):
     fixture_panel = _build_fixture_panel(match_number, details)
     fields = _build_match_data_fields(teams, existing_scores, existing_transfers)
     return fixture_panel, fields, match_number
+
+
+@callback(
+    Output("admin-match-entry-summary", "children"),
+    Input("admin-match-pagination", "value"),
+    Input({"type": "match-score-input", "index": ALL}, "value"),
+    Input({"type": "match-transfer-input", "index": ALL}, "value"),
+)
+def update_match_entry_summary(match_number, score_values, transfer_values):
+    teams = get_all_teams()
+    total_teams = len(teams)
+    score_count = sum(value not in (None, "") for value in score_values)
+    transfer_count = sum(value not in (None, "") for value in transfer_values)
+    completed_rows = sum(
+        score not in (None, "") and transfer not in (None, "")
+        for score, transfer in zip(score_values, transfer_values)
+    )
+
+    summary_items = [
+        ("Match", f"#{int(match_number)}" if match_number else "—"),
+        ("Teams", str(total_teams)),
+        ("Scores", f"{score_count}/{total_teams}" if total_teams else "0/0"),
+        (
+            "Transfers",
+            f"{transfer_count}/{total_teams}" if total_teams else "0/0",
+        ),
+        (
+            "Ready Rows",
+            f"{completed_rows}/{total_teams}" if total_teams else "0/0",
+        ),
+    ]
+
+    return [
+        html.Div(
+            [
+                html.Div(label, className="admin-entry-stat-label"),
+                html.Div(value, className="admin-entry-stat-value"),
+            ],
+            className="admin-entry-stat-card",
+        )
+        for label, value in summary_items
+    ]
 
 
 # ─── Save match data ───────────────────────────────────────────────────────
