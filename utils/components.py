@@ -98,19 +98,14 @@ def chart_card(graph_id, height=None):
 # ─── Badge Component (for awards) ───────────────────────────────────────────
 
 
-def create_badge(icon, team, detail, color="#FFD23F"):
+def create_badge(team, detail, color="#FFD23F"):
     return html.Div(
         [
-            html.Span(icon, className="badge-icon"),
-            html.Div(
-                [
-                    html.Strong(team, style={"color": color}),
-                    html.Span(f"  —  {detail}", className="badge-detail"),
-                ],
-                className="badge-text",
-            ),
+            html.Div(team, className="badge-team", style={"color": color}),
+            html.Div(detail, className="badge-detail"),
         ],
         className="award-badge",
+        style={"borderLeftColor": color},
     )
 
 
