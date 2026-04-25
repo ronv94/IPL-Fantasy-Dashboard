@@ -219,15 +219,30 @@ def _build_awards(awards_dict, colors):
     for badge_name, recipients in awards_dict.items():
         if not recipients:
             continue
+        parts = badge_name.split(" ", 1)
+        icon = parts[0]
+        category_label = parts[1] if len(parts) > 1 else badge_name
         badges = []
         for r in recipients:
             color = colors.get(r["team"], "#FFD23F")
-            icon = badge_name.split(" ")[0]  # emoji
-            badges.append(create_badge(icon, r["team"], r["detail"], color))
+            badges.append(create_badge(r["team"], r["detail"], color))
         sections.append(
             html.Div(
                 [
-                    html.H6(badge_name, className="award-category"),
+                    html.Div(
+                        [
+                            html.Span(icon, className="award-section-icon"),
+                            html.Div(
+                                [
+                                    html.Div(
+                                        category_label, className="award-category"
+                                    ),
+                                ],
+                                className="award-section-heading",
+                            ),
+                        ],
+                        className="award-section-header",
+                    ),
                     html.Div(badges, className="award-badges"),
                 ],
                 className="award-section",

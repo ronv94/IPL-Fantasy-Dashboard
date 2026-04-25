@@ -665,8 +665,8 @@ body {
 /* ─── Awards ───────────────────────────────────────────────────────────── */
 
 .awards-container {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
 }
 
@@ -674,47 +674,81 @@ body {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius);
-    padding: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s ease;
+}
+
+.award-section:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.award-section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.award-section-icon {
+    font-size: 2rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.award-section-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
 }
 
 .award-category {
-    font-weight: 700;
-    margin-bottom: 10px;
-    font-size: 1rem;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: 0.01em;
 }
 
 .award-badges {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 16px;
+    flex: 1;
 }
 
 .award-badge {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.04);
+    flex-direction: column;
+    gap: 3px;
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-subtle);
+    border-left: 3px solid;
     border-radius: var(--radius-sm);
-    padding: 8px 14px;
-    transition: all 0.2s;
+    padding: 10px 14px;
+    transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .award-badge:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateX(3px);
 }
 
-.badge-icon {
-    font-size: 1.4rem;
-}
-
-.badge-text {
-    font-size: 0.85rem;
+.badge-team {
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.2;
 }
 
 .badge-detail {
     color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
 }
 
 /* ─── H2H ──────────────────────────────────────────────────────────────── */
@@ -1180,7 +1214,8 @@ body {
     .overview-main-grid,
     .h2h-chart-grid,
     .admin-team-form-grid,
-    .admin-danger-grid {
+    .admin-danger-grid,
+    .awards-container {
         grid-template-columns: 1fr;
     }
 

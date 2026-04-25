@@ -10,7 +10,16 @@ from utils.constants import CHART_LAYOUT_DEFAULTS, CHART_HEIGHT
 
 def _apply_theme(fig, title="", **overrides):
     """Apply standard layout theme to a figure."""
-    layout = {**CHART_LAYOUT_DEFAULTS, "title": dict(text=title, font=dict(size=16))}
+    layout = {
+        **CHART_LAYOUT_DEFAULTS,
+        "title": dict(
+            text=title,
+            font=dict(size=15),
+            x=0.0,
+            xanchor="left",
+            pad=dict(l=4, t=2),
+        ),
+    }
     layout.update(overrides)
     fig.update_layout(**layout)
     return fig
