@@ -3,6 +3,7 @@ import os
 # ─── App Settings ────────────────────────────────────────────────────────────
 APP_TITLE = "IPL Rasiya 2026"
 TOTAL_MATCHES = 74
+TOTAL_TRANSFERS = 160
 
 # ─── Database ────────────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))

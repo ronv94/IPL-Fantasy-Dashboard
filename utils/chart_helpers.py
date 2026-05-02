@@ -65,7 +65,7 @@ def fig_points_race(cumulative_df, colors):
             )
         )
     return _apply_theme(
-        fig, title="Points Race", xaxis_title="Match", yaxis_title="Cumulative Points"
+        fig, title="", xaxis_title="Match", yaxis_title="Cumulative Points"
     )
 
 
@@ -99,9 +99,7 @@ def fig_points_earned(scores_df, colors):
                 hovertemplate=f"<b>{t}</b><br>Match %{{x}}<br>Points: %{{y:,.1f}}<extra></extra>",
             )
         )
-    return _apply_theme(
-        fig, title="Points Per Match", xaxis_title="Match", yaxis_title="Points"
-    )
+    return _apply_theme(fig, title="", xaxis_title="Match", yaxis_title="Points")
 
 
 # ─── Points Distribution (Box Plot) ─────────────────────────────────────────

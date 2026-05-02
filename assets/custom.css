@@ -104,7 +104,42 @@ body {
 }
 
 .overview-main-grid {
-    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: stretch;
+}
+
+.overview-leaderboard-col {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.overview-leaderboard-col #overview-leaderboard {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+.ov-charts-col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.ov-chart-tabs {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.ov-chart-tabs-list {
+    margin-bottom: 12px;
+}
+
+.ov-chart-tabs .mantine-Tabs-panel {
+    flex: 1;
 }
 
 .page-two-column-grid {
@@ -290,6 +325,9 @@ body {
     font-size: 1.3rem;
     margin: 0;
     line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .stat-card-subtitle {
@@ -310,75 +348,107 @@ body {
 
 /* ─── Leaderboard ──────────────────────────────────────────────────────── */
 
+/* Shared grid: rank | team | match | season | ± | xfers */
+.lb-header,
+.lb-row {
+    display: grid;
+    grid-template-columns: 36px 1fr 72px 88px 48px 76px;
+    align-items: center;
+    column-gap: 8px;
+}
+
 .leaderboard {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+}
+
+.lb-header {
+    padding: 4px 14px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 2px;
+}
+
+.lb-h {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.lb-h-right {
+    text-align: right;
+}
+
+.lb-h-center {
+    text-align: center;
 }
 
 .lb-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-card);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-sm);
-    padding: 12px 16px;
-    transition: all 0.2s ease;
+    padding: 9px 14px;
+    border-left: 3px solid transparent;
+    border-radius: 6px;
+    transition: background 0.15s ease;
 }
 
 .lb-row:hover {
-    background: var(--bg-card-hover);
-    border-color: rgba(255, 107, 53, 0.2);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .lb-row-leader {
-    border-color: var(--accent-yellow);
-    background: rgba(255, 210, 63, 0.06);
-    box-shadow: 0 0 12px rgba(255, 210, 63, 0.1);
-}
-
-.lb-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    border-left-color: var(--accent-yellow);
+    background: rgba(255, 210, 63, 0.04);
 }
 
 .lb-rank {
+    font-size: 0.82rem;
     font-weight: 800;
-    font-size: 1rem;
     color: var(--text-secondary);
-    min-width: 32px;
+}
+
+.lb-team-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
 }
 
 .lb-color-dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
 }
 
 .lb-team {
+    font-size: 0.88rem;
     font-weight: 600;
-    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.lb-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.lb-match {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: right;
 }
 
-.lb-points {
-    font-weight: 700;
-    font-size: 1rem;
+.lb-match-mvp {
     color: var(--accent-yellow);
 }
 
-.lb-change {
+.lb-points {
+    font-size: 0.92rem;
     font-weight: 700;
-    font-size: 0.8rem;
-    min-width: 36px;
+    color: var(--accent-yellow);
+    text-align: right;
+}
+
+.lb-change {
+    font-size: 0.78rem;
+    font-weight: 700;
     text-align: center;
 }
 
@@ -394,17 +464,128 @@ body {
     color: var(--text-secondary);
 }
 
-.lb-gap {
+.lb-xfers {
     font-size: 0.78rem;
+    font-weight: 600;
     color: var(--text-secondary);
-    min-width: 50px;
     text-align: right;
 }
 
-/* ─── Season Progress ──────────────────────────────────────────────────── */
+/* ─── Overview Hero (fixture + slider + stat cards) ───────────────────── */
 
-.progress-wrapper {
-    margin-bottom: 24px;
+.ov-hero {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+    align-items: stretch;
+}
+
+.ov-hero-fixture {
+    display: flex;
+}
+
+/* Fixture card */
+.ov-fix-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 24px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    text-align: center;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.ov-fix-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ov-fix-date {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-yellow);
+}
+
+.ov-fix-matchup {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.ov-fix-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.ov-fix-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 0;
+    border: none;
+    background: transparent;
+    object-fit: contain;
+    padding: 0;
+}
+
+.ov-fix-logo-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+}
+
+.ov-fix-code {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.06em;
+}
+
+.ov-fix-vs {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--accent-orange);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.ov-fix-stadium {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Right column: slider + stat cards */
+.ov-hero-right {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.ov-hero-right .overview-stat-grid {
+    margin-bottom: 0;
+}
+
+.ov-hero-right .season-progress-slider {
+    padding-bottom: 24px !important;
 }
 
 .progress-header {
@@ -424,53 +605,20 @@ body {
     color: var(--accent-orange);
 }
 
-.season-progress {
-    height: 8px !important;
-    border-radius: 4px !important;
-    background: rgba(255, 255, 255, 0.06) !important;
+.season-progress-slider {
+    padding-bottom: 28px !important;
 }
 
-/* ─── Latest Match Card ────────────────────────────────────────────────── */
-
-.latest-match-card {
-    background: var(--bg-card) !important;
-    border: 1px solid var(--border-subtle) !important;
-    border-radius: var(--radius) !important;
+.season-progress-slider .mantine-Slider-track::before {
+    background-color: rgba(255, 255, 255, 0.07) !important;
 }
 
-.latest-title {
+.season-progress-slider .mantine-Slider-markLabel {
+    color: var(--text-secondary);
+    font-size: 0.72rem;
     font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 12px;
-}
-
-.latest-results {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.latest-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 12px;
-    border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.latest-mvp {
-    background: rgba(255, 210, 63, 0.08);
-    border: 1px solid rgba(255, 210, 63, 0.2);
-}
-
-.latest-team {
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.latest-pts {
-    font-weight: 700;
-    color: var(--text-primary);
+    font-family: var(--font);
+    margin-top: 6px;
 }
 
 /* ─── Consistency Table ────────────────────────────────────────────────── */
@@ -1187,8 +1335,13 @@ body {
         font-size: 1.1rem;
     }
 
-    .lb-gap {
+    .lb-xfers {
         display: none;
+    }
+
+    .lb-header,
+    .lb-row {
+        grid-template-columns: 30px 1fr 68px 80px 48px;
     }
 
     .cons-header,
@@ -1234,6 +1387,28 @@ body {
 
     .admin-match-grid-head {
         display: none;
+    }
+
+    .ov-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .ov-fix-card {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        padding: 14px;
+    }
+
+    .ov-fix-logo {
+        width: 44px;
+        height: 44px;
+        padding: 5px;
+    }
+
+    .ov-fix-matchup {
+        gap: 12px;
     }
 
     .admin-match-fixture-shell,

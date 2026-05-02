@@ -159,83 +159,116 @@ def season_progress(current_match, total_matches):
     pct = current_match / total_matches * 100
     return html.Div(
         [
-            html.Div(
-                [
-                    html.Span(
-                        f"Match {current_match} of {total_matches}",
-                        className="progress-label",
-                    ),
-                    html.Span(f"{pct:.0f}%", className="progress-pct"),
-                ],
-                className="progress-header",
+            html.Span(
+                f"Season Progress \u2014 Match {current_match} of {total_matches}",
+                className="progress-label",
             ),
-            dmc.Progress(
-                value=pct,
-                className="season-progress",
-                color="yellow" if pct < 50 else "green",
-                radius="xl",
-                size="md",
-            ),
+            html.Span(f"{pct:.0f}%", className="progress-pct"),
         ],
-        className="progress-wrapper",
+        className="progress-header",
     )
 
 
 # ─── Leaderboard Row ────────────────────────────────────────────────────────
 
 
-def leaderboard_row(rank, team, total_points, rank_change, gap, color):
+def leaderboard_row(
+    rank,
+    team,
+    total_points,
+    rank_change,
+    gap,
+    color,
+    transfers_used=None,
+    total_transfers=None,
+    match_score=None,
+    is_mvp=False,
+):
     if rank_change > 0:
-        change_cls = "rank-up"
-        change_text = f"▲ {rank_change}"
+        change_cls, change_text = "rank-up", f"▲{rank_change}"
     elif rank_change < 0:
-        change_cls = "rank-down"
-        change_text = f"▼ {abs(rank_change)}"
+        change_cls, change_text = "rank-down", f"▼{abs(rank_change)}"
     else:
-        change_cls = "rank-same"
-        change_text = "—"
+        change_cls, change_text = "rank-same", "—"
 
     crown = " 👑" if rank == 1 else ""
 
+    xfers_text = "—"
+    if transfers_used is not None and total_transfers is not None:
+        remaining = max(total_transfers - int(transfers_used), 0)
+        xfers_text = str(remaining)
+
+    match_text, match_cls = "—", "lb-match"
+    if match_score is not None:
+        match_text = f"⭐ {match_score:,.0f}" if is_mvp else f"{match_score:,.0f}"
+        if is_mvp:
+            match_cls = "lb-match lb-match-mvp"
+
     return html.Div(
         [
+            html.Span(f"#{rank}", className="lb-rank"),
             html.Div(
                 [
-                    html.Span(f"#{rank}", className="lb-rank"),
                     html.Div(
-                        className="lb-color-dot", style={"backgroundColor": color}
+                        className="lb-color-dot",
+                        style={"backgroundColor": color},
                     ),
                     html.Span(f"{team}{crown}", className="lb-team"),
                 ],
-                className="lb-left",
+                className="lb-team-cell",
             ),
-            html.Div(
-                [
-                    html.Span(f"{total_points:,.1f}", className="lb-points"),
-                    html.Span(change_text, className=f"lb-change {change_cls}"),
-                    html.Span(f"-{gap:,.0f}" if gap > 0 else "", className="lb-gap"),
-                ],
-                className="lb-right",
-            ),
+            html.Span(match_text, className=match_cls),
+            html.Span(f"{total_points:,.0f}", className="lb-points"),
+            html.Span(change_text, className=f"lb-change {change_cls}"),
+            html.Span(xfers_text, className="lb-xfers"),
         ],
         className=f"lb-row {'lb-row-leader' if rank == 1 else ''}",
     )
 
 
-def create_leaderboard(leaderboard_df, colors):
+def create_leaderboard(
+    leaderboard_df, colors, transfers_map=None, total_transfers=None, match_scores=None
+):
     """Build the full leaderboard component from leaderboard DataFrame."""
     if leaderboard_df.empty:
         return empty_state("No scores entered yet")
-    rows = []
+
+    # Identify MVP (highest scorer in the current match)
+    mvp_team = None
+    if match_scores:
+        valid = {t: s for t, s in match_scores.items() if s is not None}
+        if valid:
+            mvp_team = max(valid, key=valid.get)
+
+    header = html.Div(
+        [
+            html.Span("#", className="lb-h"),
+            html.Span("Team", className="lb-h"),
+            html.Span("Match", className="lb-h lb-h-right"),
+            html.Span("Season", className="lb-h lb-h-right"),
+            html.Span("±", className="lb-h lb-h-center"),
+            html.Span("Xfers left", className="lb-h lb-h-right"),
+        ],
+        className="lb-header",
+    )
+
+    rows = [header]
     for _, r in leaderboard_df.iterrows():
+        team = r["Team"]
+        used = transfers_map.get(team) if transfers_map else None
+        score = match_scores.get(team) if match_scores else None
         rows.append(
             leaderboard_row(
                 rank=int(r["Rank"]),
-                team=r["Team"],
+                team=team,
                 total_points=r["Total Points"],
                 rank_change=int(r["Rank Change"]),
                 gap=r["Gap to Leader"],
-                color=colors.get(r["Team"], "#888"),
+                color=colors.get(team, "#888"),
+                transfers_used=used,
+                total_transfers=total_transfers,
+                match_score=score,
+                is_mvp=(team == mvp_team),
             )
         )
     return html.Div(rows, className="leaderboard")

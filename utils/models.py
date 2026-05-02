@@ -161,10 +161,16 @@ def get_match_details(match_number):
 
 
 def get_max_match_number():
-    """Return the highest match_number with data, or 0 if none."""
+    """Return the highest match_number that has scores entered, or 0 if none."""
     conn = get_connection()
     try:
-        row = conn.execute("SELECT MAX(match_number) as mx FROM matches").fetchone()
+        row = conn.execute(
+            """
+            SELECT MAX(m.match_number) as mx
+            FROM scores s
+            JOIN matches m ON s.match_id = m.id
+            """
+        ).fetchone()
         return row["mx"] or 0
     finally:
         conn.close()
