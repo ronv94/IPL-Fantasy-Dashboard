@@ -3,6 +3,7 @@ from dash import Dash, html, dcc
 import dash_mantine_components as dmc
 
 from utils.db import init_db
+from utils.cache import cache
 from utils.components import create_navbar
 from utils.constants import APP_TITLE
 
@@ -24,6 +25,7 @@ app = Dash(
 )
 
 server = app.server
+cache.init_app(server)
 
 # ─── Layout ──────────────────────────────────────────────────────────────────
 
