@@ -8,6 +8,15 @@ import plotly.graph_objects as go
 from utils.constants import CHART_LAYOUT_DEFAULTS, CHART_HEIGHT
 
 
+def _hex_to_rgba(hex_color, opacity=0.33):
+    """Convert a hex color string to an rgba() string."""
+    hex_color = hex_color.lstrip("#")
+    if len(hex_color) == 3:
+        hex_color = "".join(c * 2 for c in hex_color)
+    r, g, b = int(hex_color[:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+    return f"rgba({r},{g},{b},{opacity})"
+
+
 def _apply_theme(fig, title="", **overrides):
     """Apply standard layout theme to a figure."""
     layout = {
@@ -266,7 +275,7 @@ def fig_differential(scores_df, team_a, team_b, diff_series, colors):
             fill="tozeroy",
             name=f"{team_a} leads",
             line=dict(color=colors.get(team_a, "#888"), width=1),
-            fillcolor=colors.get(team_a, "#888") + "55",
+            fillcolor=_hex_to_rgba(colors.get(team_a, "#888")),
         )
     )
     fig.add_trace(
@@ -276,7 +285,7 @@ def fig_differential(scores_df, team_a, team_b, diff_series, colors):
             fill="tozeroy",
             name=f"{team_b} leads",
             line=dict(color=colors.get(team_b, "#888"), width=1),
-            fillcolor=colors.get(team_b, "#888") + "55",
+            fillcolor=_hex_to_rgba(colors.get(team_b, "#888")),
         )
     )
     return _apply_theme(
