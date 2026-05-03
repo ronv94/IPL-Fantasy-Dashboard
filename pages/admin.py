@@ -20,6 +20,7 @@ from utils.models import (
     get_match_details,
 )
 from utils.components import section_header, form_field
+from utils.cache import clear_data_cache
 
 dash.register_page(__name__, path="/admin", name="Admin", order=4)
 
@@ -518,6 +519,7 @@ def manage_teams(add_clicks, deactivate_clicks, reactivate_clicks, name, abbr, c
         else:
             try:
                 add_team(name, color, abbr)
+                clear_data_cache()
                 msg = f"✅ Added {name}"
                 name, abbr = "", ""
             except Exception as e:
@@ -526,11 +528,13 @@ def manage_teams(add_clicks, deactivate_clicks, reactivate_clicks, name, abbr, c
     elif isinstance(triggered, dict) and triggered.get("type") == "deactivate-team":
         team_id = triggered["index"]
         deactivate_team(team_id)
+        clear_data_cache()
         msg = "Team deactivated"
 
     elif isinstance(triggered, dict) and triggered.get("type") == "reactivate-team":
         team_id = triggered["index"]
         reactivate_team(team_id)
+        clear_data_cache()
         msg = "Team reactivated"
 
     # Rebuild teams list
@@ -697,6 +701,8 @@ def save_match_data(
     if transfers:
         upsert_transfers(int(match_number), transfers)
 
+    clear_data_cache()
+
     saved_parts = []
     if scores:
         saved_parts.append(f"scores for {len(scores)} teams")
@@ -719,6 +725,7 @@ def delete_match(n_clicks, match_number):
     if not match_number:
         return "⚠️ Enter a match number to delete"
     delete_match_data(int(match_number))
+    clear_data_cache()
     return f"🗑️ Deleted all data for Match {match_number}"
 
 

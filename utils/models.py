@@ -1,10 +1,12 @@
 import pandas as pd
 from utils.db import get_connection
+from utils.cache import cache
 
 
 # ─── Teams ───────────────────────────────────────────────────────────────────
 
 
+@cache.memoize()
 def get_all_teams(active_only=True):
     """Return list of team dicts. If active_only, filter to active=1."""
     conn = get_connection()
@@ -22,6 +24,7 @@ def get_all_teams(active_only=True):
         conn.close()
 
 
+@cache.memoize()
 def get_team_color_map():
     """Return {team_name: color_hex} for active teams."""
     teams = get_all_teams()
@@ -88,6 +91,7 @@ def reactivate_team(team_id):
 # ─── Matches ─────────────────────────────────────────────────────────────────
 
 
+@cache.memoize()
 def get_all_matches():
     """Return list of match dicts ordered by match_number."""
     conn = get_connection()
@@ -145,6 +149,7 @@ def get_or_create_match(
         conn.close()
 
 
+@cache.memoize()
 def get_match_details(match_number):
     """Return match metadata for editing."""
     conn = get_connection()
@@ -160,6 +165,7 @@ def get_match_details(match_number):
         conn.close()
 
 
+@cache.memoize()
 def get_max_match_number():
     """Return the highest match_number that has scores entered, or 0 if none."""
     conn = get_connection()
@@ -242,6 +248,7 @@ def upsert_transfers(match_number, transfers_dict):
 # ─── DataFrames (pivoted for charts) ────────────────────────────────────────
 
 
+@cache.memoize()
 def get_scores_dataframe():
     """Return DataFrame with columns: Match, Team1, Team2, ...
     Rows = match_numbers, values = points. Sorted by Match.
@@ -264,6 +271,7 @@ def get_scores_dataframe():
     return df.pivot(index="Match", columns="team", values="points").reset_index()
 
 
+@cache.memoize()
 def get_transfers_dataframe():
     """Return DataFrame with columns: Match, Team1, Team2, ...
     Rows = match_numbers, values = transfer counts. Sorted by Match.
@@ -307,6 +315,7 @@ def delete_match_data(match_number):
         conn.close()
 
 
+@cache.memoize()
 def get_match_scores_for_edit(match_number):
     """Return {team_name: points} for a given match for editing."""
     conn = get_connection()
@@ -324,6 +333,7 @@ def get_match_scores_for_edit(match_number):
         conn.close()
 
 
+@cache.memoize()
 def get_match_transfers_for_edit(match_number):
     """Return {team_name: count} for a given match for editing."""
     conn = get_connection()
