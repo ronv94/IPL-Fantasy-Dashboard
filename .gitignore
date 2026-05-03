@@ -28,7 +28,7 @@ htmlcov/
 .vscode/
 
 # Local app data
-data/fantasy.db
+# data/fantasy.db
 
 # Notebook checkpoints
 .ipynb_checkpoints/
